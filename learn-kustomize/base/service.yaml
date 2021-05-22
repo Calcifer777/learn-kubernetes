@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kustomize-example-svc
+  namespace: kustomize-example
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80  # exposed
+      targetPort: 5000  # pod
+      protocol: TCP
+      name: http
+  selector:
+    app: kustomize-example-app

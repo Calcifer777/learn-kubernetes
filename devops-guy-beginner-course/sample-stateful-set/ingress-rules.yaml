@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /   #new 
+  name: hit-counter-lb
+  namespace: example
+spec:
+  tls:
+  - hosts:
+    - locahost
+  rules:
+  - host: locahost
+    http:
+      paths:
+      - path: /pv
+        backend:
+          serviceName: hit-counter-lb
+          servicePort: 80
+

@@ -1,0 +1,15 @@
+bases:
+  - ../../base/
+patches:
+  - ./replica_count.yaml
+configMapGenerator:
+  - name: kustomize-example-cfgmap
+    namespace: kustomize-example
+    # behavior: replace
+    files:
+      - ./configs/config.json
+patchesStrategicMerge:
+  - env.yaml
+images:
+  - name: "aimvector/python"
+    newTag: 1.0.1

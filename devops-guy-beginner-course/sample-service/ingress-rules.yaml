@@ -9,7 +9,7 @@ metadata:
 spec:
   tls:
   - hosts:
-    - marcel.test
+    - marcel.test  # needs a custom entry in the /etc/hosts file pointing to 127.0.0.1
     secretName: marcel-tls-secret
   rules:
   - host: marcel.test

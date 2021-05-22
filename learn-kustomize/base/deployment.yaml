@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kustomize-example-deploy
+  namespace: kustomize-example
+  labels:
+    app: kustomize-example-app
+spec:
+  selector:
+    matchLabels:
+      app: kustomize-example-app
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: kustomize-example-app
+    spec:
+      containers:
+        - name: kustomize-example-app
+          image: aimvector/python:1.0.0
+          ports:
+            - containerPort: 5000
+          volumeMounts:
+            - mountPath: /configs/
+              name: config-volume
+      volumes:
+        - name: config-volume
+          configMap: 
+            name: kustomize-example-cfgmap
