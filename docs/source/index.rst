@@ -10,8 +10,11 @@ Welcome to Kubernetes Notes!
   :maxdepth: 2
   :caption: Contents:
 
+  pods.rst
   workloads.rst
   services.rst
+
+  todos.rst
 
 
 Indices and tables
