@@ -10,9 +10,13 @@ Welcome to Kubernetes Notes!
   :maxdepth: 2
   :caption: Contents:
 
+  architecture.rst
   pods.rst
   workloads.rst
   services.rst
+  storage.rst
+  rbac.rst
+  configuration.rst
 
   todos.rst
 

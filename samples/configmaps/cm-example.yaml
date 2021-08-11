@@ -1,0 +1,64 @@
+apiVersion: v1 
+kind: Namespace
+metadata:
+  name: configmap-tutorial
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: configmap-tutorial
+  name: configmap-sample-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sample-cm
+  template:
+    metadata:
+      labels:
+        app: sample-cm
+    spec:
+      containers:
+        - name: sample-cm
+          image: alpine:latest
+          command: ["sleep", "3600"]
+          env:
+            - name: POD_NAME
+              value: THIS_IS_THE_POD_NAME
+            - name: KEY_1
+              valueFrom:
+                  configMapKeyRef:  # import cm values as env variables
+                    name: my-first-config-map
+                    key: MY_KEY
+          volumeMounts:
+            - name: config-volume
+              mountPath: "/config"
+              readOnly: true
+      volumes:
+        - name: config-volume
+          configMap:
+            name: my-second-config-map
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-first-config-map
+  namespace: configmap-tutorial
+data:
+  MY_KEY: my-value
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-second-config-map
+  namespace: configmap-tutorial
+data:
+  properties: |
+    prop1=my-prop-value-1
+    prop2=my-prop-value-2
