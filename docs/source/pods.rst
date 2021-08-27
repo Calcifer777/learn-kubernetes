@@ -45,6 +45,7 @@ Pod status
 ==================
 
 The PodStatus, which has an array of PodConditions through which the Pod has or has not passed:
+
 - `PodScheduled`: the Pod has been scheduled to a node.
 - `ContainersReady`: all containers in the Pod are ready.
 - `Initialized`: all init containers have started successfully.
@@ -115,8 +116,9 @@ You can define one or multiple `topologySpreadConstraint` to instruct the kube-s
 - `topologyKey` is the key of node labels
 - `maxSkew`: the degree to which Pods may be unevenly distributed. It must be greater than zero. Its semantics differs according to the value of `whenUnsatisfiable`
 - `whenUnsatisfiable`: indicates how to deal with a Pod if it doesn't satisfy the spread constraint
-    - `DoNotSchedule`
-    - `ScheduleAnyway`: schedules the pod prioritizing nodes that minimize the skew.
+
+  - `DoNotSchedule`
+  - `ScheduleAnyway`: schedules the pod prioritizing nodes that minimize the skew.
 
 When a Pod defines more than one `topologySpreadConstraint`, those constraints are `ANDed`.
 

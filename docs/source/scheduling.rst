@@ -81,6 +81,7 @@ A `nodeSelector` specifies a map of key-value pairs. For the pod to be eligible 
 The `NodeAuthorizer` is a plugin that prevents the kubelet from changing Pod labels starting with a certain prefix. This helps when using the `nodeSelector` function.
 
 .. code-block:: yaml
+
   apiVersion: v1
   kind: Pod
   metadata:
@@ -100,6 +101,7 @@ Types:
 - preferredDuringSchedulingIgnoredDuringExecution
 
 .. code-block:: yaml
+
   apiVersion: v1
   kind: Pod
   metadata:
@@ -131,13 +133,18 @@ Inter-pod affinity and anti-affinity allow you to constrain which nodes your pod
 Taints and tolerations
 --------------
 
-Taints allow a node to repel a set of pods. The action of a taint can be:
+Taints allow a node to repel a set of pods. You can taint a node with the command:
+
+`kubectl taint node <node-name> <taint-name>=<taint-value>:<taint-effect>`
+
+The effect of a taint - `<taint-effect>` - can be:
 
 - `NoSchedule`: a node without the taint toleration will not be scheduled on that node
 - `PreferNoSchedule`: a node without the taint toleration will be assigned a lower score for that node when scheduling when scheduling
 - `NoExecute`: a node without the taint toleration will be evicted from a node, even after scheduling
 
 .. code-block:: yaml
+
   apiVersion: v1
   kind: Pod
   metadata:
