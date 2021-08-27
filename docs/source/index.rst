@@ -13,6 +13,7 @@ Welcome to Kubernetes Notes!
   architecture.rst
   pods.rst
   workloads.rst
+  scheduling.rst
   services.rst
   storage.rst
   rbac.rst

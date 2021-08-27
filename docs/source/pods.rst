@@ -15,15 +15,6 @@ Pods natively provide two kinds of shared resources for their constituent contai
 
 Any container in a Pod can enable **privileged mode**, using the privileged flag on the security context of the container spec. This is useful for containers that want to use operating system administrative capabilities such as manipulating the network stack or accessing hardware devices.
 
-Static Pods
-**************
-
-Static Pods are managed directly by the kubelet daemon on a specific node, without the API server observing them. Whereas most Pods are managed by the control plane (for example, a Deployment), for static Pods, the kubelet directly supervises each static Pod (and restarts it if it fails).
-
-Kubelet also tries to create a mirror pod on the kubernetes api server for each static pod so that the static pods are visible i.e., when you do kubectl get pod for example, the mirror object of static pod is also listed.
-
-The main use for static Pods is to run a self-hosted control plane: in other words, using the kubelet to supervise the individual control plane components. For example, when kubeadm is bringing up kubernetes control plane, it generates pod manifests for api-server and controller-manager in a directory which kubelet is monitoring. Then kubelet brings up these control plane components as static pods.
-
 Pod Lifecycle
 **************
 
@@ -39,7 +30,6 @@ Pod Phases
 
 Container states
 ==================
-
 
 - `Waiting`: the container is still running the operations it requires in order to complete start up
 - `Running`: the container is executing without issues. If there was a `postStart` hook configured, it has already executed and finished.
@@ -104,7 +94,6 @@ If a Pod's init container fails, the kubelet repeatedly restarts that init conta
 
 Ephemeral containers (alpha)
 ==============================
-
 
 Ephemeral containers are a special type of container that runs temporarily in an existing Pod to accomplish user-initiated actions such as troubleshooting. Ephemeral containers are useful for interactive troubleshooting when kubectl exec is insufficient because a container has crashed or a container image doesn't include debugging utilities (e.g. distroless images).
 
@@ -177,3 +166,12 @@ Example
       command: ['sh', '-c', "until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done"]
 
 
+
+Static Pods
+***************
+
+Static Pods are managed directly by the kubelet daemon on a specific node, without the API server observing them. Whereas most Pods are managed by the control plane (for example, a Deployment), for static Pods, the kubelet directly supervises each static Pod (and restarts it if it fails).
+
+Kubelet also tries to create a mirror pod on the kubernetes api server for each static pod so that the static pods are visible i.e., when you do kubectl get pod for example, the mirror object of static pod is also listed.
+
+The main use for static Pods is to run a self-hosted control plane: in other words, using the kubelet to supervise the individual control plane components. For example, when kubeadm is bringing up kubernetes control plane, it generates pod manifests for api-server and controller-manager in a directory which kubelet is monitoring. Then kubelet brings up these control plane components as static pods.

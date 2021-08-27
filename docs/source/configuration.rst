@@ -94,3 +94,42 @@ Types of Secret
 
 Example
 =================
+
+
+.. code-block:: yaml
+
+  apiVersion: v1
+  kind: Secret
+  metadata:
+    name: sample-secret
+  stringData:
+    key: value
+  data:
+    asdasd=: asglaf=  # base64 encoded
+
+Requests and Limits
+***********************
+
+When you specify the resource request for Containers in a Pod, the scheduler uses this information to decide which node to place the Pod on. 
+
+When you specify a resource limit for a Container, the kubelet enforces those limits so that the running container is not allowed to use more of that resource than the limit you set.
+
+If a Container specifies its own memory/CPU limit, but does not specify a memory/CPU request, Kubernetes automatically assigns a memory/CPU request that matches the limit.
+
+Units
+==============
+
+Memory is measured in: XX KiB, XX MiB
+
+CPU: 0.X -> X00m (of a vCPU/core/hyperthread)
+
+Remedies
+==============
+
+If a Container exceeds its memory limit, it might be terminated. If it is restartable, the kubelet will restart it.
+
+If a Container exceeds its memory request, it is likely that its Pod will be evicted whenever the node runs out of memory.
+
+A Container might or might not be allowed to exceed its CPU limit for extended periods of time. However, it will not be killed for excessive CPU usage.
+
+CPU limits are enforced via Linux control groups.

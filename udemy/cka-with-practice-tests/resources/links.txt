@@ -1,0 +1,4 @@
+https://github.com/kodekloudhub/certified-kubernetes-administrator-course
+https://www.civo.com/learn/tips-to-ace-cka-and-ckad-exams
+https://www.linkedin.com/pulse/how-i-got-ckad-certification-2021-3-weeks-abdelahad-satour/
+https://gist.github.com/milindchawre/3558fabd7ee9ed72123d4be5b23f338c
