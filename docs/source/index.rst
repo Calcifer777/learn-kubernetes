@@ -18,6 +18,7 @@ Welcome to Kubernetes Notes!
   storage.rst
   rbac.rst
   configuration.rst
+  cluster-maintenance.rst
 
   todos.rst
 
