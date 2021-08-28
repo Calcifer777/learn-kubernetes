@@ -19,6 +19,7 @@ Welcome to Kubernetes Notes!
   rbac.rst
   configuration.rst
   cluster-maintenance.rst
+  logging-and-monitoring.rst
 
   todos.rst
 
