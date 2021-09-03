@@ -16,10 +16,11 @@ Welcome to Kubernetes Notes!
   scheduling.rst
   services.rst
   storage.rst
-  rbac.rst
+  iam.rst
   configuration.rst
   cluster-maintenance.rst
   logging-and-monitoring.rst
+  security.rst
 
   todos.rst
 
