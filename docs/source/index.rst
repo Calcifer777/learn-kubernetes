@@ -15,12 +15,13 @@ Welcome to Kubernetes Notes!
   workloads.rst
   scheduling.rst
   services.rst
-  storage.rst
   iam.rst
   configuration.rst
   cluster-maintenance.rst
   logging-and-monitoring.rst
   security.rst
+  storage.rst
+  networking.rst
 
   todos.rst
 
