@@ -127,12 +127,47 @@ K8s expects that each node has a networking solution that makes it so that:
 IPAM
 *******
 
-
 Service networking
 *********************
 
 Ingress
 *********************
+
+An ingress-controller is a reverse proxy that is exposed to external clients and routes the requests based on domain name, path, and protocol.
+
+An ingress rules defines the routing behavior that is enforced by the ingress controller.
+
+An ingress controller is composed by:
+- a deployment of the reverse proxy
+- a configmap to pass configuration settings to the reverse proxy
+- a service exposing the deployment
+- a service account, role, and role bindings to allow the ingress controller to monitor the cluster and align its configuration to the configured ingress rules
+
+Requests not matching any of the ingress rules configured for the controller are routed towards a service named `default-http-backend`.
+
+.. code-block:: yaml
+
+  apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    name: my-ingress
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /  # this redirects requests destined to /path-1 to the root path
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  spec:
+    rules:
+    - host: this.is.my.domain.com
+      http:
+        paths:
+        - path: /path-1
+          pathType: Prefix
+          backend:
+            service:
+              name: service-1
+              port:
+                number: 80
+    - host: this.is.my.domain.com
+      ...
 
 Exercises
 ************
