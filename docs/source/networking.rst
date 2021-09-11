@@ -44,31 +44,7 @@ Useful commands:
 Network Namespaces
 ===================
 
-Useful commands:
-- `ip netns`
-- `ip netns add <network-namespace>`
-- `ip netns exec <network-namespace> ip link`: executes a command within a network ns
-- `ip link add <veth-2-name> type veth peer name <veth-2-name>`: create a pipe between two networks
-- `ip link set veth-red netns red`: attach a veth to a network ns
-- `ip -n <netns-name> addr add <some-ip-address> dev <veth-name>`: assign an IP address to the netns
-- `ip -n <netns-name> link set <veth-name> up`: activate the veth
-
 To allow multiple netns to communicate between each other on a single host, we create a virtual switch (via Linux Bridge, Open vSwitch, etc).
-
-- `ip link add <vnet-name> type bridge`; create an internal bridge network
-- `ip link set dev <vnet-name> up`; create an internal bridge network
-- `ip link add <veth-name> type veth peer name <veth-bridge-name>`; create an internal bridge network
-
-Steps:
-
-1. Create network namespace 
-2. Create Bridge network / interface 
-3. Create VETH Pairs (pipe, virtual cable)
-4. Attach VETH to namespace
-5. Attach other VETH to Bridge
-6. Assign IP addresses 
-7. Bring the interfaces up
-8. Enable NAT - IP masquerade
 
 Docker networking
 ===================
@@ -76,15 +52,15 @@ Docker networking
 Types of docker networking connectivity:
 
 - `none`: the container is not attached to the `none` network; it cannot reach the outside world, and cannot communicate to the other contaienrs
-- `host`: the container is attached to the host network - no netns is involved and there is no network separation between host and container
+- `host`: the container is attached to the host network - no `netns` is involved and there is no network separation between host and container
 - `bridge`: create an internal private network which the docker host and container attach to
 
 Cluster networking interface (CNI)
-=======================================
+************************************
 
 The CNI is a set of standards that define how programs should be developed to solve networking challenges in a container runtime environment.
 
-The programs are called *network plugins* (NP).
+The programs that implement a CNI are called *(network) plugins* (NP).
 
 CNI defines a set of responsibilities for a Container Runtime and the NP:
 - Container Runtime (RKT, K8s)
@@ -93,25 +69,24 @@ CNI defines a set of responsibilities for a Container Runtime and the NP:
   - Invoke the NP when the container is added
   - Invoke the NP when the container is deleted
   - JSON format of the network configuration
-- Network Plugin 
+- Plugin (bridge, weave, Flannel, Calico)
   - Support command line arguments (e.g. ADD, DEL, CHECK)
   - Support parameters (e.g. container id, netns)
   - Manage IP addresses assignment to PODs
   - Return results in a specific format
 
-Docker does not implement a CNI
+Docker does not implement a CNI; Docker implements CNM (container network model). K8s implements networking by creating container in the `none` network and then invoking the CNI script to allow connectivity.
 
 Cluster Networking
 *********************
 
 Port configuration:
 - Master:
-  - ETCD: 2379 (controplane components), 2380 (p2p connectivity)
-  - Kubelet: 10250
   - Kubeapi: 6443
   - Kubelet: 10250
   - Kube-scheduler: 10251
   - Kube-controller-manager: 10252
+  - ETCD: 2379 (controplane components), 2380 (p2p connectivity)
 - Workers
   - Kubelet: 10250
 
@@ -121,14 +96,90 @@ Pod networking
 K8s expects that each node has a networking solution that makes it so that:
 
 - every Pod has an IP address
-- every Pod can communicate with every other Por in the same node
+- every Pod can communicate with every other Pod in the same node
 - every Pod can communicate with every other Pod in other nodes without a NAT
 
-IPAM
-*******
+The CNI plugin executes the necessary commands to ensure inter-pod communication in the cluster.
+
+The kubelet uses the CNI configuration passed as cli-argument o in the pod specification, at the entries:
+
+- `network-plugin: cni`
+- `cni-bin-dir`: where all the CNI scripts are placed. Defaults to `/opt/cni/bin/`
+- `cni-conf-dir`: where the CNI configuration is placed; points to one of the scripts in the bin directory. If multiple files are present, it chooses the first one in alphabetical order
+
+**Example**
+
+.. code-block:: json
+
+  {
+    "cniVersion": "0.2.0",
+    "name": "my-net",
+    "type": "bridge",
+    "bridge": "cni0",
+    "isGateway": true,
+    "isMasq": true,
+    "ipam": {   # 
+      "type": "host-local",
+      "subnet": "10.22.0.0/16",  # range of IP addresses assigned to Pods
+      "routes": [
+        "dst": "0.0.0.0/0"
+      ]
+    }
+  }
+
+IP Address Management (IPAM)
+*********************************
+
+IPAM comprehends
+- How the virtual bridge networks in the nodes are assigned an IP subnet
+- How the Pods are assigned an IP
+
+The CNI plugins manages IPAM tasks.
+
+CNI comes with 2 built in plugins to manage IPAM:
+- DHCP 
+- Host-local
 
 Service networking
 *********************
+
+`Kube-proxy` is responsible for exposing the services IP to the Pods in the cluster and external clients.
+
+Services are cross-nodes K8s objects.
+
+When a service is created, `kube-proxy`:
+
+- assigns an internal IP to that service. The IP is choosen randomly from a list of free IPs in a given range. The range is configured wia the `service-cluster-ip-range` cli argument; this range should not overlap with the one for IP assigned to the Pods (set in the `kube-apiserver`)
+- adds forwarding rules in each Node that map the IP and port of the service to the IP and port of the Pod.
+
+`kube-proxy` can enforce these forwarding rules via:
+
+- iptables
+- userspace
+- ipvs
+
+DNS in K8s
+**************************
+
+The default DNS server in K8s is CoreDNS. It is deployed as a `deployment` with replicas for redundancy.
+
+CoreDNS is configured via a `Corefile`, for example:
+
+.. code-block:: json
+
+  {
+    errors
+    health
+    kubernetes cluster.local in addr.arpa ip6.arpa {
+      pods insecure
+      upstreams
+      fallthrough in-addr.arpa ip6.arpa
+    }
+    prometheus :9153
+    proxy . /etc/resolv.conf
+    cache 30
+    reload
+  }
 
 Ingress
 *********************
@@ -172,11 +223,73 @@ Requests not matching any of the ingress rules configured for the controller are
 Exercises
 ************
 
-- Get IP address of node: `kubectl get nodes -o wide`
-- Get CNI of node: `ip a | grep -B2 <node-ip>`
-- Get mac-address of CNI of node: `ip a | grep -B2 <node-ip> | grep link/ether`
-- Get MAC address of worker node `arp <node-name>`
-- Get name of bridge interface created by Docker: `ip a | grep docker -A 1`
-- Show default IP route: `ip route`
-- identify the network plugin configured for Kubernetes: `ps aux | grep kubelet | grep network-plugin`
-- Identify the CNI plugin used by K8s: `cd etc/cni/net.d/`
+Create and pair two network namespaces
+===========================================
+
+.. code-block:: bash
+
+  ip netns add red
+  ip netns add blue
+  ip netns exec red ip link
+  ip netns exec blue ip link
+  ip link add veth-red type veth peer name veth-blue
+  ip link set veth-red netns red
+  ip link set veth-blue netns blue
+  ip -n red addr add 192.168.15.1/24 dev veth-red
+  ip -n blue addr add 192.168.15.2/24 dev veth-blue
+  ip -n red link set veth-red up
+  ip -n blue link set veth-blue up
+  # Test that it is reachable from ns and from host
+  # sudo ip netns exec blue ping 192.168.15.1
+
+Create a network bridge that connects two network namespaces
+================================================================
+
+.. code-block:: bash
+
+  # Create ns:
+  ip netns add red
+  ip netns add blue
+  # Create interface bridge:
+  ip link add v-net-0 type bridge
+  # Change bridge status:
+  ip link set dev v-net-0 up
+  # Create vritual cables:
+  ip link add veth-red type veth peer name veth-red-br
+  ip link add veth-blue type veth peer name veth-blue-br
+  # Join peer with ns:
+  ip link set veth-red netns red
+  ip link set veth-blue netns blue
+  ip link set veth-red-br master v-net-0
+  ip link set veth-blue-br master v-net-0
+  # Add IP addresses to ns:
+  ip -n red addr add 192.168.15.1/24 dev veth-red
+  ip -n blue addr add 192.168.15.2/24 dev veth-blue
+  # Bring up ns interfaces:
+  ip -n red link set veth-red up
+  ip -n blue link set veth-blue up
+  # Add IP address to host:
+  ip addr add 192.168.15.5/24 dev v-net-0
+  # Bring up all interfaces on host:
+  ip link set dev veth-red-br up
+  ip link set dev veth-blue-br up
+  # Test that it is reachable from ns and from host
+  # sudo ip netns exec blue ping 192.168.15.1
+
+Get node IP, network interface name, MAC
+==============================================
+
+.. code-block:: bash
+
+  # Get node IP
+  kubectl get nodes <nodename> -o wide  # option 1
+  kubectl get nodes <nodename> -o jsonpath='{.status.addresses[?(@.type == "InternalIP")].address}'  # option 2
+  # Get all interfaces with their IP addresses and filter by node IP
+  ip addr | grep <node-ip> -B2
+
+Get MAC address of worker node 
+====================================
+
+.. code-block:: bash
+  
+  arp <node-name>
