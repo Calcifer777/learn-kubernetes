@@ -22,6 +22,7 @@ Welcome to Kubernetes Notes!
   security.rst
   storage.rst
   networking.rst
+  cluster-setup.rst
 
   todos.rst
 
@@ -32,3 +33,6 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+..
+  https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html
