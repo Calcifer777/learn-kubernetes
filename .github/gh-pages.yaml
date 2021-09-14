@@ -1,0 +1,46 @@
+name: "CI Docs"
+
+on:
+  push:
+    branches:
+    - master
+    paths:
+    - 'docs/**'
+jobs:
+  release:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      # This action checks-out your repository under $GITHUB_WORKSPACE, so your workflow can access it.
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+        fetch-depth: 0
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Build docs
+      run: |
+        export PATH=$PATH:~/.local/bin
+        cd docs
+        make html
+    - name: Deploy
+      run : |
+        # Copy contents
+        mkdir gh-pages
+        cp -r ./docs/build/html/. gh-pages
+        # Create gh-pages branch
+        cd gh-pages
+        git init
+        git config --local user.email "m.filip@hotmail.it"
+        git config --local user.name "Calcifer777"
+        git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+        git checkout -b gh-pages
+        # Deploy
+        git add .
+        git commit -m "Publish docs" || true
+        git push origin gh-pages --force
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
