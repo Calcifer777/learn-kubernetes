@@ -25,6 +25,8 @@ jobs:
       run: |
         export PATH=$PATH:~/.local/bin
         cd docs
+        pip install --upgrade pip
+        pip install -r requirements.txt
         make html
     - name: Deploy
       run : |
