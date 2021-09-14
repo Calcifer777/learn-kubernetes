@@ -41,8 +41,8 @@ jobs:
         git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
         git checkout -b gh-pages
         # Deploy
-        git add .
         touch .nojekyll
+        git add .
         git commit -m "Publish docs" || true
         git push origin gh-pages --force
       env:
