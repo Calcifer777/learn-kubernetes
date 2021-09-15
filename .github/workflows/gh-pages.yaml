@@ -4,14 +4,14 @@ on:
   push:
     branches:
     - master
-    # paths:
-    # - 'docs/**'
+    paths:
+    - 'docs/**'
 jobs:
   release:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      # This action checks-out your repository under $GITHUB_WORKSPACE, so your workflow can access it.
+    # This action checks-out your repository under $GITHUB_WORKSPACE, so your workflow can access it.
     - name: Checkout
       uses: actions/checkout@v2
       with:

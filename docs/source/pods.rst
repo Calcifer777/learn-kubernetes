@@ -89,14 +89,14 @@ If a Pod's init container fails, the kubelet repeatedly restarts that init conta
 
 - Wait for a Service to be created (e.g. a db, another microservice, etc)
 - Register this Pod with a remote server from the downward API
-- Wait for some time before starting the app container with a command like
+- Wait for some time before starting the app container with a command like `for i in {1..100}; do sleep 1; if dig myservice; then exit 0; fi; done; exit 1`
 - Clone a Git repository into a Volume
 - Place values into a configuration file and run a template tool to dynamically generate a configuration file for the main app container. 
 
 Ephemeral containers (alpha)
 ==============================
 
-Ephemeral containers are a special type of container that runs temporarily in an existing Pod to accomplish user-initiated actions such as troubleshooting. Ephemeral containers are useful for interactive troubleshooting when kubectl exec is insufficient because a container has crashed or a container image doesn't include debugging utilities (e.g. distroless images).
+Ephemeral containers are a special type of container that runs temporarily in an existing Pod to accomplish user-initiated actions such as troubleshooting. Ephemeral containers are useful for interactive troubleshooting when `kubectl exec` is insufficient because a container has crashed or a container image doesn't include debugging utilities (e.g. distroless images).
 
 You use ephemeral containers to inspect services rather than to build applications.
 

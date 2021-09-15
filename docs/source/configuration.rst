@@ -133,3 +133,29 @@ If a Container exceeds its memory request, it is likely that its Pod will be evi
 A Container might or might not be allowed to exceed its CPU limit for extended periods of time. However, it will not be killed for excessive CPU usage.
 
 CPU limits are enforced via Linux control groups.
+
+QoS classes
+=============
+
+QoS classes
+When Kubernetes creates a `Pod` it assigns one of these QoS classes to the Pod:
+
+- Guaranteed: for all containers in the `Pod`, both requests and limits are specified and set to the same value
+- Burstable: at least one container in the `Pod` has memory or CPU request
+- BestEffort: for all containers in the `Pod` neither requests or limits are specified
+
+.. code-block:: yaml
+
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: frontend
+  spec:
+    containers:
+    - resources:
+        requests:
+          memory: "64Mi"
+          cpu: "250m"
+        limits:
+          memory: "128Mi"
+          cpu: "500m"
