@@ -4,24 +4,24 @@ TODO's
 ###################
 
 - workloads
-    - daemonsets
-    - statefulsets
-    - replicasets
-    - deployments
-    - jobs
+  - daemonsets
+  - statefulsets
+  - replicasets
+  - deployments
+  - jobs
 - networking
-    - ingress
-    - cert manager
-    - dns
+  - ingress
+  - cert manager
+  - dns
 - affinity
-    - affinity conflict
+  - affinity conflict
 - etcd
 - rbac
 - crd
 - Tools
-    - helm
-    - kustomize
-    - rancher
-    - istio
-    - spinnaker
-    - traefik
+  - helm
+  - kustomize
+  - rancher
+  - istio
+  - spinnaker
+  - traefik

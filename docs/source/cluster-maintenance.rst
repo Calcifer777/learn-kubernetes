@@ -1,6 +1,6 @@
-#################
-Configuration
-#################
+#####################
+Cluster Maintenance
+#####################
 
 Draining nodes
 *****************
@@ -14,7 +14,7 @@ Draining nodes
 Cluster update process
 ************************
 
-`Docs <https://v1-21.docs.kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/>`_
+`Cluster Update process Docs <https://v1-21.docs.kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/>`_
 
 At any stage:
 
@@ -46,7 +46,7 @@ Cluster update steps
 Etcd backup and restore
 ************************
 
-`Docs <https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/#backing-up-an-etcd-cluster>`_
+`Etcd backup and restore <https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/#backing-up-an-etcd-cluster>`_
 
 Steps
 ======
@@ -54,7 +54,7 @@ Steps
 Backup
 
 - Export the API version environment variable: `export ETCDCTL_API=3`
-- Perform the backup to a file; fetch the etcd configs from the etcd Pod command arguments
+- Perform the backup to a file; fetch the etcd configuration parameters from the etcd Pod command arguments
 
   .. code-block:: bash
     

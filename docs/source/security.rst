@@ -12,7 +12,7 @@ Static password file
 
 A static file with the users' username and password credentials. The credential file must be passed as an argument to the `kube-apiserver`; as a Pod argument in the case of `kubeadm`
 
-.. code-block :: yaml
+.. code-block:: yaml
 
     apiVersion: v1
     kind: Pod
@@ -40,7 +40,7 @@ A static file with the users' username and password credentials. The credential 
 
 Then, for each user, create the necessary roles and role-bindings.
 
-.. code-block :: yaml
+.. code-block:: yaml
 
   kind: Role
   apiVersion: rbac.authorization.k8s.io/v1
@@ -52,7 +52,7 @@ Then, for each user, create the necessary roles and role-bindings.
     resources: ["pods"]
     verbs: ["get", "watch", "list"]
    
-.. code-block :: yaml
+.. code-block:: yaml
 
   # This role binding allows "jane" to read pods in the "default" namespace.
   kind: RoleBinding
@@ -108,6 +108,7 @@ Generating clusters certificates:
 - Create the ca certificate:
 
   .. code-block:: bash 
+
     open genrsa -out ca.key 2048  # generate the key
     openssl req -new -key ca.key -subj "/CN=KUBERNETES-CA" -out ca.csr  # generate the certificate sign request
     openssl x509 -req -in ca.csr -signkey ca.key -out ca.crt  # sign the certificate
@@ -115,6 +116,7 @@ Generating clusters certificates:
 - Create the client certificate (example for the admin user):
 
   .. code-block:: bash 
+
     open genrsa -out admin.key 2048  # generate the key
     openssl req -new -key admin.key -subj "/CN=kube-admin/O=system:masters" -out ca.csr  # generate the certificate sign request
     openssl x509 -req -in admin.csr -signkey -CA ca.crt -CAkey ca.key -out admin.crt  # sign the certificate with the ca certificate
@@ -123,7 +125,7 @@ Generating clusters certificates:
 View certificate details
 ****************************
 
-- 
+- WIP
 
 Adding new users to the cluster
 ***********************************
@@ -134,7 +136,8 @@ The controller-manager is responsible for monitoring csr's approving and signing
 - openssl req -new -key user-name.key -subj "/CN=user-name" -out user-name.csr
 - Create a CSR K9s object
 
-  ..code-block:: yaml
+  .. code-block:: yaml
+
     apiVersion: certificates.k8s.io/v1beta1
     kind: CertificateSigningRequest
     metadata:
@@ -147,6 +150,7 @@ The controller-manager is responsible for monitoring csr's approving and signing
         - client auth
     requests:
       here goes the content of user-name.crs base64 encoded. make it go in one line or use the |
+
 - kubectl certificate [approve|deny] user-name
 - kubectl get csr -o jsonpath '{.status.certificate}' | base64 -d
 
@@ -158,7 +162,7 @@ A `~/.kube/config` file defines:
 - a set of users
 - a set of contexts; a context defines which user to use for logging in to a cluster
 
-.. code-block :: yaml
+.. code-block:: yaml
   
   apiVersion: v1
   kind: Config

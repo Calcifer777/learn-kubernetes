@@ -2,26 +2,27 @@
 Networking
 #########################
 
+****************
 Pre-requisites
 ****************
 
 Switching and Routing
 ========================
 
-Switching: a switch allows 2 or more devices to communicate in a local network
-Routing: a router helps connect two or more networks
+- Switch / Network Interface: allows 2 or more devices to communicate in a local network
+- Router: connects two or more networks
 
 Useful commands: 
 
 - `ip link`: list and modify interfaces on the host
 - `ip addr`: see the IP addresses assigned to those interfaces
-- `ip addr add <device-ip-address> dev eth0`: set IP addresses on the interfaces; these settings do not survive a host restart; to persist these changes, modify the `etc/network-interfaces` file
+- `ip addr add <cidr-block> dev <dev(ice)-name>`: configure IP address routing via an interface. These settings do not survive a host restart; to persist these changes, modify the `/etc/network/interfaces` file
 - `ip route`: view the routing table (used for cross network communications)
-- `ip route add <device-ip-address> via <gateway-ip-address>`: add an entry in the routing table. To connect to the internet, for any new IP, use `ip route add default via <gateway-ip-address>`
-- `cat /proc/sys/net/ipv4/ip_forward`: check if ip-forwarding is enabled on the host. To make it permanent, modyfy the `/etc/sysctl.conf` file
+- `ip route add <cidr-block> via <gateway-ip-address>`: add an entry in the routing table. To connect to the internet, for any new IP, use `ip route add default via <gateway-ip-address>`
+- `cat /proc/sys/net/ipv4/ip_forward`: check if ip-forwarding is enabled on the host. To make it permanent, modify the `/etc/sysctl.conf` file
 
 DNS
-======
+========================
 
 To assign a name to an IP address, add an entry to `/etc/hosts`.
 
@@ -29,20 +30,26 @@ To add a common DNS nameserver, add the entry `nameserver <ip-to-nameserver>` to
 
 By default, rules on the `hosts` file have priority on those in the nameserver; this behavior can be changed by modifying the `/etc/nsswitch.conf` (`docs <https://man7.org/linux/man-pages/man5/nsswitch.conf.5.html>`_)
 
-Record types:
-
-- A: name to IPv4
-- AAAA: name to IPv6
-- CNAME: aliases, i.e. name to name
+Entry types that can be found in the `/etc/hosts` file:
+- A record: maps a name to IPv4
+- AAAA record: maps a name to IPv6
+- CNAME record: aliases, i.e. maps a name to name
+- `search <alias> <hostname>`: configure an alias for a host
+- `search <domain>`: configures a domain name under which to search unresolved domains
 
 Useful commands:
 
-- `search <alias> <hostname>`: configure an alias for a host
 - `nslookup`: does not consider the local host file
 - `dig`
 
 Network Namespaces
-===================
+========================
+
+ARP TABLE (Address Resolution Table) Resolves IP address to Mac Address's. 
+
+https://man7.org/linux/man-pages/man4/veth.4.html
+
+All modern operating systems come equipped with a firewall – a software application that regulates network traffic to a computer. Firewalls create a barrier between a trusted network (like an office network) and an untrusted one (like the internet). Firewalls work by defining rules that govern which traffic is allowed, and which is blocked. The utility firewall developed for Linux systems is iptables.
 
 To allow multiple netns to communicate between each other on a single host, we create a virtual switch (via Linux Bridge, Open vSwitch, etc).
 
@@ -55,6 +62,7 @@ Types of docker networking connectivity:
 - `host`: the container is attached to the host network - no `netns` is involved and there is no network separation between host and container
 - `bridge`: create an internal private network which the docker host and container attach to
 
+************************************
 Cluster networking interface (CNI)
 ************************************
 
@@ -77,8 +85,9 @@ CNI defines a set of responsibilities for a Container Runtime and the NP:
 
 Docker does not implement a CNI; Docker implements CNM (container network model). K8s implements networking by creating container in the `none` network and then invoking the CNI script to allow connectivity.
 
+************************************
 Cluster Networking
-*********************
+************************************
 
 Port configuration:
 - Master:
@@ -90,8 +99,9 @@ Port configuration:
 - Workers
   - Kubelet: 10250
 
+************************************
 Pod networking
-*********************
+************************************
 
 K8s expects that each node has a networking solution that makes it so that:
 
@@ -107,7 +117,8 @@ The kubelet uses the CNI configuration passed as cli-argument o in the pod speci
 - `cni-bin-dir`: where all the CNI scripts are placed. Defaults to `/opt/cni/bin/`
 - `cni-conf-dir`: where the CNI configuration is placed; points to one of the scripts in the bin directory. If multiple files are present, it chooses the first one in alphabetical order
 
-**Example**
+Example
+------------------------------------
 
 .. code-block:: json
 
@@ -127,8 +138,10 @@ The kubelet uses the CNI configuration passed as cli-argument o in the pod speci
     }
   }
 
+
+************************************
 IP Address Management (IPAM)
-*********************************
+************************************
 
 IPAM comprehends
 - How the virtual bridge networks in the nodes are assigned an IP subnet
@@ -140,8 +153,9 @@ CNI comes with 2 built in plugins to manage IPAM:
 - DHCP 
 - Host-local
 
+************************************
 Service networking
-*********************
+************************************
 
 `Kube-proxy` is responsible for exposing the services IP to the Pods in the cluster and external clients.
 
@@ -158,8 +172,10 @@ When a service is created, `kube-proxy`:
 - userspace
 - ipvs
 
+
+************************************
 DNS in K8s
-**************************
+************************************
 
 The default DNS server in K8s is CoreDNS. It is deployed as a `deployment` with replicas for redundancy.
 
@@ -181,17 +197,23 @@ CoreDNS is configured via a `Corefile`, for example:
     reload
   }
 
+The fully qualified domain name for a service is:
+`<service-name>.<namespace>.svc.cluster.local`
+
+Pods can have DNS records, but the fist component of the FQDN is just the internal IP of the Pod, with periods replaced by dashes.
+
+************************************
 Ingress
-*********************
+************************************
 
 An ingress-controller is a reverse proxy that is exposed to external clients and routes the requests based on domain name, path, and protocol.
 
 An ingress rules defines the routing behavior that is enforced by the ingress controller.
 
 An ingress controller is composed by:
-- a deployment of the reverse proxy
-- a configmap to pass configuration settings to the reverse proxy
-- a service exposing the deployment
+- a `deployment` of the reverse proxy
+- a `configmap` to pass configuration settings to the reverse proxy
+- a `service` exposing the deployment
 - a service account, role, and role bindings to allow the ingress controller to monitor the cluster and align its configuration to the configured ingress rules
 
 Requests not matching any of the ingress rules configured for the controller are routed towards a service named `default-http-backend`.
@@ -220,11 +242,13 @@ Requests not matching any of the ingress rules configured for the controller are
     - host: this.is.my.domain.com
       ...
 
+
+************************************
 Exercises
-************
+************************************
 
 Create and pair two network namespaces
-===========================================
+================================================================
 
 .. code-block:: bash
 
@@ -241,6 +265,7 @@ Create and pair two network namespaces
   ip -n blue link set veth-blue up
   # Test that it is reachable from ns and from host
   # sudo ip netns exec blue ping 192.168.15.1
+
 
 Create a network bridge that connects two network namespaces
 ================================================================
@@ -276,8 +301,9 @@ Create a network bridge that connects two network namespaces
   # Test that it is reachable from ns and from host
   # sudo ip netns exec blue ping 192.168.15.1
 
+
 Get node IP, network interface name, MAC
-==============================================
+================================================================
 
 .. code-block:: bash
 
@@ -287,9 +313,23 @@ Get node IP, network interface name, MAC
   # Get all interfaces with their IP addresses and filter by node IP
   ip addr | grep <node-ip> -B2
 
+
 Get MAC address of worker node 
-====================================
+================================================================
 
 .. code-block:: bash
   
   arp <node-name>
+
+
+Other
+================================================================
+
+- Get IP address of node: `kubectl get nodes -o wide`
+- Get CNI of node: `ip a | grep -B2 <node-ip>`
+- Get mac-address of CNI of node: `ip a | grep -B2 <node-ip> | grep link/ether`
+- Get MAC address of worker node `arp <node-name>`
+- Get name of bridge interface created by Docker: `ip a | grep docker -A 1`
+- Show default IP route: `ip route`
+- identify the network plugin configured for Kubernetes: `ps aux | grep kubelet | grep network-plugin`
+- Identify the CNI plugin used by K8s: `cd etc/cni/net.d/`
