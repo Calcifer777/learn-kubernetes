@@ -3,15 +3,19 @@
 Storage
 #################
 
+********************************
+Prerequisites
+********************************
+
 Docker Storage
-*****************
+================================
 
 Types of mounts:
 
 - volume mount: mount a volume from the volume directory (`/var/lib/docker/volumes/<volume-name>`)
 - bind mount: mount a volume from a directory in the host
 
-.. code-block :: bash
+.. code-block:: bash
 
     docker run \
         --volume-driver rexray/ebs \
@@ -23,16 +27,17 @@ Docker uses **storage drivers** to manage the volume layers (AUFS, ZFS, BTRFS, D
 Volumes are handled by **volume drivers** (Local, AZF, gce-docker, Convoy, RexRay, GlusterFS, etc.)
 
 Kubernetes storage interface
-******************************
+================================
 
 Defines a set of RPC that must be implemented by the storage driver (e.g. AWS EBS) and can called by the container orchestrator (e.g. K8s) to manage the volumes. 
 
+********************************
 Volumes
-*****************
+********************************
 
 `Docs <https://kubernetes.io/docs/concepts/storage/volumes/>`_
 
-`Volume` resources decouple the storage from the Container which use them; their lifecycle are coupled to a pod; volumes are therefore transient in nature. Volumes enable safe container restarts and sharing data between containers in a pod. 
+`Volume` resources decouple the storage from the Container which uses them; their lifecycle is coupled to a pod; volumes are therefore transient in nature. Volumes enable safe container restarts and sharing data between containers in a pod. 
 
 Volumes are used to solve the following issues:
 
@@ -44,11 +49,12 @@ K8s supports different types of Volumes, such as:
 - awsElasticBlockStore, gcePersistentDisk, azureDisk
 - cephfs, glusterfs, cinder
 
-.. code-block :: yaml
+.. code-block:: yaml
 
     apiVersion: v1
     kind: Pod
-    metadata: ...
+    metadata: 
+      ...
     spec:
       containers:
       - name: boxy1
@@ -62,8 +68,10 @@ K8s supports different types of Volumes, such as:
             path: /path/in/node/fs
             type: Directory
 
-Persistent Volumes
-***************************
+
+********************************
+PersistentVolumes
+********************************
 
 `PersistentVolume` resources are used to enable persistent storage in a K8s cluster. A `PersistentVolume` decouples the lifecycle of stored data from that of the Pod. Compared to a `Volume`, the lifecycle of a `PersistentVolume` is independent from lifecycle of any Pod in a cluster. 
 
@@ -71,42 +79,53 @@ A `Volume` exists in the context of a pod, that is, you can't create a volume on
 
 Persistent volumes enables safe pod restarts and sharing data between pods.
 
-Examples
-==========
-
-.. code-block :: yaml
+.. code-block:: yaml
 
     apiVersion: v1
     kind: PersistentVolume
-    metadata: ...
+    metadata:
+      name: volume-1
     spec:
-      accessModes: ["ReadOnlyOnce", "ReadOnlyMany", "ReadWriteMany"]
+      accessModes:  # can have multiple values
+      - ReadOnlyOnce
+      - ReadOnlyMany
+      - ReadWriteMany
       capacity:
         storage: 1Gi
       awsElasticBlockStore:
         volumeID: volume-id
         fsType: ext4
-      persistentVolumeReclaimPolicy: [Retain, Delete, Recycle]
+      persistentVolumeReclaimPolicy: Retain | Delete | Recycle
 
-Persisten Volume Claims
-***************************
+
+********************************
+PersistentVolumeClaims
+********************************
 
 A PersistentVolumeClaim (PVC) is a request for storage by a user. Just like Pods consume node resources (CPU and Memory). Claims can request PersistentVolume resources (storage size and access mode).
 
-.. code-block :: yaml
+.. code-block:: yaml
 
     apiVersion: v1
     kind: PersistentVolumeClaim
     metadata:
       name: my-claim
     spec:
-      accessModes: ["ReadOnlyOnce", "ReadOnlyMany", "ReadWriteMany"]
+      accessModes:  # can have multiple values
+      - ReadOnlyOnce
+      - ReadOnlyMany
+      - ReadWriteMany
       resources:
        requests:
          storage: 500Mi
 
-Statuses
-===========================
+
+********************************
+Volume Specs
+********************************
+
+Volume Statuses
+================================
 
 A volume will be in one of the following phases:
 
@@ -116,21 +135,22 @@ A volume will be in one of the following phases:
 - Failed: the volume has failed its automatic reclamation
 
 Reclaim Policies
-===========================
+================================
 
 - Retain: manual reclamation
 - Recycle: basic scrub (`rm -rf /thevolume/*`); only valid for NFS and HostPath
 - Delete: associated storage asset such as AWS EBS, GCE PD, Azure Disk, or OpenStack Cinder volume is deleted
 
 Classes
-===========================
+================================
 
 A PV can have a class, which is specified by setting the `storageClassName` attribute to the name of a `StorageClass`. 
 
 A PV of a particular class can only be bound to PVCs requesting that class. A PV with no storageClassName has no class and can only be bound to PVCs that request no particular class.
 
+********************************
 Storage Classes
-***************************
+********************************
 
 A StorageClass provides a way for administrators to describe the "classes" of storage they offer. Different classes might map to quality-of-service levels, or to backup policies, or to arbitrary policies determined by the cluster administrators. 
 
@@ -139,7 +159,7 @@ A storageClass is, ultimately, just a label for a re-usable PV profile.
 `VolumeBindingMode`: if set to `WaitForFirstConsumer`, will delay the binding and provisioning of a PV until a Pod using the PVC is created.
 
 
-.. code-block :: yaml
+.. code-block:: yaml
 
     apiVersion: storage.k8s.io/v1
     kind: StorageClass
@@ -147,6 +167,7 @@ A storageClass is, ultimately, just a label for a re-usable PV profile.
       name: my-storage-class
     provisioner: kubernetes.io/no-provisioner
     volumeBindingMode: WaitForFirstConsumer
+
 
 Dynamic Provisioning
 ===========================
@@ -157,7 +178,7 @@ The dynamic provisioning feature eliminates the need for cluster administrators 
 
 Dynamic provisioning is enabled by storage classes (but does not work for all provisioners)
 
-.. code-block :: yaml
+.. code-block:: yaml
 
     apiVersion: storate.k8s.io/v1
     kind: StorageClass
