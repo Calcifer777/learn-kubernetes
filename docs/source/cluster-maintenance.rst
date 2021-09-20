@@ -39,9 +39,6 @@ At any stage:
 
 The recommended approach is to update 1 minor version at a time.
 
-When upgrading with `kubeadm`:
-1. Upgrade the apiserver
-
 Cluster update strategies
 =============================
 

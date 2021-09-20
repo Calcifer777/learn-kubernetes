@@ -25,3 +25,11 @@ TODO's
   - istio
   - spinnaker
   - traefik
+
+********************
+To study again
+********************
+
+- networking
+- user access
+- network policies

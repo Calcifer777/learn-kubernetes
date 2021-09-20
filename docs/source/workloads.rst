@@ -103,12 +103,15 @@ Deployment Strategies
 Horizontal Pod Autoscaling
 ===============================
 
+Editing Deployments
+=======================
 
+When applying any changes to a `Deployment`, you can save the change in the annotations using the `--record` cli option.
 
-Scaling
-=================
+.. code-block:: bash
 
-`kubectl scale deployment <deployment-name> --replicas=<number-of-replicas>`
+  kubectl set image deployment/nginx-deploy nginx=nginx:1.17 --record
+  kubectl scale deployment <deployment-name> --replicas=<number-of-replicas>
 
 Rollouts
 =================

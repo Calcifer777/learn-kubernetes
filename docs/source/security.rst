@@ -210,6 +210,55 @@ kubectl config view --kubeconfig path-to-config-file
 
 
 ******************************
+Network policies
+******************************
+
+NetworkPolicies allow to specify how a `Pod` is allowed to communicate with various network "entities".  These entities are identified through a combination of the following 3 identifiers:
+
+- Other pods that are allowed
+- Namespaces that are allowed
+- IP blocks
+
+Once there is any `NetworkPolicy` in a namespace selecting a particular `Pod`, that `Pod` will reject any connections that are not allowed by any `NetworkPolicy`.
+
+Network policies are implemented by the network plugin. To use network policies, you must be using a networking solution which supports `NetworkPolicy`.
+
+.. code-block:: yaml
+
+  apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    name: test-network-policy
+  spec:
+    podSelector:
+      matchLabels:
+        role: db   # which Pods the NetworkPolicy applies
+    policyTypes:   # which type of effects the NetworkPolicy will have
+    - Ingress
+    - Egress
+    ingress:
+    - from:
+      - podSelector:              # allow FROM Pods with given attributes
+          matchLabels:
+            role: frontend
+      - ipBlock:                  # allow FROM specific CIDR blocks
+          cidr: 172.17.0.0/16
+          except:
+          - 172.17.1.0/24
+      ports:                      # specify the type of traffic
+      - protocol: TCP
+        port: 6379
+    egress:
+    - to:
+      - namespaceSelector:        # allow TO a namespace
+          matchLabels:
+            project: myproject
+      ports:
+      - protocol: TCP
+        port: 5978
+
+
+******************************
 Resources
 ******************************
 
@@ -219,10 +268,61 @@ https://mjarosie.github.io/dev/2021/09/15/iam-roles-for-kubernetes-service-accou
 Exercises
 ******************************
 
-Creates a new User, and approve CSR
+Create a new user, approve CSR
 ======================================
 
 Inspect the kubeconfig file
 ======================================
 
-kubectl api-resources
+Use images from private registry
+======================================
+
+Create a secret with the credentials to the private repository
+
+.. code-block:: bash
+
+  kubectl create secret docker-registry <docker-registry-secret-name>  \   # use this in the next step
+    --docker-username=user  \
+    --docker-password=password  \
+    --docker-email=email  \
+    [--docker-server=string]
+
+
+Edit the corresponding entry in the `Pod` definition
+
+.. code-block:: bash
+
+  ...
+  spec:
+    imagePullSecrets:
+    - name: docker-registry-secret-name
+    containers:
+    - ...
+
+Set containers security context properties
+===============================================
+
+You can set the security context at the Pod level or at the container level. Specifications at the container level overwrite those at the `Pod` level.
+
+.. code-block:: bash
+
+  ...
+  securityContext:
+    runAsUser: my-user
+  spec:
+    containers:
+    - securityContext
+        runAsUser: my-other-user  # this has precedence over the Pod level specification
+        capabilities:
+          add:
+            - SYS_TIME
+
+
+******************************
+Useful commands
+******************************
+
+
+.. code-block:: bash
+  
+  kubectl api-resources  # display all Kubernetes resource types
