@@ -193,8 +193,9 @@ The effect of a taint - `<taint-effect>` - can be:
         effect: "NoSchedule"
         # tolerationSeconds: 6000  # sets the toleration period
 
+
 Deploy a custom scheduler
-***************************
+*********************************
 
 Copy `kube-scheduler.yaml` from the directory `/etc/kubernetes/manifests/` to any other location and then change the name to my-scheduler.
 

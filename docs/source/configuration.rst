@@ -137,7 +137,6 @@ CPU limits are enforced via Linux control groups.
 QoS classes
 =============
 
-QoS classes
 When Kubernetes creates a `Pod` it assigns one of these QoS classes to the Pod:
 
 - Guaranteed: for all containers in the `Pod`, both requests and limits are specified and set to the same value

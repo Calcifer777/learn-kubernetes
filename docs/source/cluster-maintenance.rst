@@ -1,5 +1,5 @@
 #################
-Configuration
+Cluster maintenance
 #################
 
 Draining nodes
