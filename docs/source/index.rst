@@ -7,23 +7,23 @@ Welcome to Kubernetes Notes!
 ======================================
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 1
   :caption: Contents:
 
   architecture.rst
+  cluster-setup.rst
+  cluster-maintenance.rst
+  networking.rst
   pods.rst
   workloads.rst
   scheduling.rst
   services.rst
   iam.rst
   configuration.rst
-  cluster-maintenance.rst
   logging-and-monitoring.rst
   security.rst
   storage.rst
-  networking.rst
-  cluster-setup.rst
-
+  troubleshooting.rst
   todos.rst
 
 

@@ -15,11 +15,46 @@ Pods natively provide two kinds of shared resources for their constituent contai
 
 Any container in a Pod can enable **privileged mode**, using the privileged flag on the security context of the container spec. This is useful for containers that want to use operating system administrative capabilities such as manipulating the network stack or accessing hardware devices.
 
+***************************
+Pod definition details
+***************************
+
+Entrypoint vs command
+===========================
+
+Docker
+----------
+
+Both ENTRYPOINT and CMD give you a way to identify which executable should be run when a container is started from your image
+
+`entrypoint` should be used in scenarios where you want the container to behave exclusively as if it were the executable it's wrapping. That is, the entrypoint is the application the is executed at the container startup
+
+`cmd` is used to sets the default parameters for the entrypoint. Some images have the default entrypoint set to the `bash` command, so you can executed any bash commands directly via `cmd`.
+
+Pods
+----------
+
++-------------------------------------+-------------------+-----------------------+
+| Description                         | Docker field name | Kubernetes field name |
++-------------------------------------+-------------------+-----------------------+
+| The command run by the container    | Entrypoint        | command               |
++-------------------------------------+-------------------+-----------------------+
+| The arguments passed to the command | Cmd               | Args                  |
++-------------------------------------+-------------------+-----------------------+
+
+When you override the default Entrypoint and Cmd, these rules apply:
+
+- If you do not supply `command` or `args` for a Container, the defaults defined in the Docker image are used.
+- If you supply a `command` but no `args` for a Container, **only the supplied command is used**. The default EntryPoint and the default Cmd defined in the Docker image are ignored.
+- If you supply only `args` for a Container, **the default Entrypoint defined in the Docker image is run with the args that you supplied**.
+- If you supply a `command` and `args`, the default Entrypoint and the default Cmd defined in the Docker image are ignored. Your command is run with your args.
+
+***************************
 Pod Lifecycle
-**************
+***************************
 
 Pod Phases
-==============
+===========================
 
 - `Pending`: The Pod has been accepted by the Kubernetes cluster, but one or more of the containers has not been set up and made ready to run. This includes time a Pod spends waiting to be scheduled as well as the time spent downloading container images over the network.
 - `Running`: The Pod has been bound to a node, and all of the containers have been created. At least one container is still running, or is in the process of starting or restarting.
@@ -29,7 +64,7 @@ Pod Phases
 - `Terminated` (not a real Pod phase): When a Pod is being deleted, it is shown as Terminating by some kubectl commands
 
 Container states
-==================
+===========================
 
 - `Waiting`: the container is still running the operations it requires in order to complete start up
 - `Running`: the container is executing without issues. If there was a `postStart` hook configured, it has already executed and finished.
@@ -42,23 +77,24 @@ Container states
 - Never
 
 Pod status
-==================
+===========================
 
-The PodStatus, which has an array of PodConditions through which the Pod has or has not passed:
+The `PodStatus`, which has an array of `PodConditions` through which the Pod has or has not passed:
 
 - `PodScheduled`: the Pod has been scheduled to a node.
 - `ContainersReady`: all containers in the Pod are ready.
 - `Initialized`: all init containers have started successfully.
 - `Ready`: the Pod is able to serve requests and should be added to the load balancing pools of all matching Services.
 
-Readiness Probe
-==================
+***************************
+Readiness Probes
+***************************
 
 Your application can inject extra feedback or signals into PodStatus: Pod readiness. To use this, set readinessGates in the Pod's spec to specify a list of additional conditions that the kubelet evaluates for Pod readiness.
 
 
 Container Probes
-------------------
+===========================
 
 A probe is a diagnostic performed periodically by the kubelet on a container. To perform a diagnostic, the kubelet can invoke different actions:
 
@@ -72,39 +108,12 @@ The kubelet can optionally perform and react to three kinds of probes on running
 - `readinessProbe`: Indicates whether the container is ready to respond to requests. If the readiness probe fails, the endpoints controller removes the Pod's IP address from the endpoints of all Services that match the Pod. The default state of readiness before the initial delay is Failure. If a Container does not provide a readiness probe, the default state is Success.
 - `livenessProbe`: Indicates whether the container is running. If the liveness probe fails, the kubelet kills the container.
 
-Special types of Containers
-******************************
-
-Init containers
-=================
-
-Init containers are exactly like regular containers, except:
-
-- Init containers always run to completion.
-- Each init container must complete successfully before the next one starts.
-
-If a Pod's init container fails, the kubelet repeatedly restarts that init container until it succeeds.
-
-**Use cases**
-
-- Wait for a Service to be created (e.g. a db, another microservice, etc)
-- Register this Pod with a remote server from the downward API
-- Wait for some time before starting the app container with a command like `for i in {1..100}; do sleep 1; if dig myservice; then exit 0; fi; done; exit 1`
-- Clone a Git repository into a Volume
-- Place values into a configuration file and run a template tool to dynamically generate a configuration file for the main app container. 
-
-Ephemeral containers (alpha)
-==============================
-
-Ephemeral containers are a special type of container that runs temporarily in an existing Pod to accomplish user-initiated actions such as troubleshooting. Ephemeral containers are useful for interactive troubleshooting when `kubectl exec` is insufficient because a container has crashed or a container image doesn't include debugging utilities (e.g. distroless images).
-
-You use ephemeral containers to inspect services rather than to build applications.
-
+********************************
 Topology spread constraints
-******************************
+********************************
 
 Spread constraints for pods
-==============================
+================================
 
 You can use topology spread constraints to control how Pods are spread across your cluster among failure-domains such as regions, zones, nodes, and other user-defined topology domains.
 
@@ -131,6 +140,7 @@ It is possible to set default topology spread constraints for a cluster. Default
 - It belongs to a service, replication controller, replica set or stateful set.
 
 
+***********************
 Pods disruptions
 ***********************
 
@@ -148,7 +158,7 @@ A PDB limits the number of Pods of a replicated application that are down simult
 Pods which are deleted or unavailable due to a rolling upgrade to an application do count against the disruption budget, but workload resources (such as Deployment and StatefulSet) are not limited by PDBs when doing rolling upgrades. Instead, the handling of failures during application updates is configured in the spec for the specific workload resource. 
 
 Example
-****************
+--------------------------------
 
 .. code-block:: yaml
 
@@ -168,12 +178,45 @@ Example
       command: ['sh', '-c', "until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done"]
 
 
+********************************
+Special types of Pods
+********************************
 
 Static Pods
-***************
+================================
 
 Static Pods are managed directly by the kubelet daemon on a specific node, without the API server observing them. Whereas most Pods are managed by the control plane (for example, a Deployment), for static Pods, the kubelet directly supervises each static Pod (and restarts it if it fails).
 
 Kubelet also tries to create a mirror pod on the kubernetes api server for each static pod so that the static pods are visible i.e., when you do kubectl get pod for example, the mirror object of static pod is also listed.
 
 The main use for static Pods is to run a self-hosted control plane: in other words, using the kubelet to supervise the individual control plane components. For example, when kubeadm is bringing up kubernetes control plane, it generates pod manifests for api-server and controller-manager in a directory which kubelet is monitoring. Then kubelet brings up these control plane components as static pods.
+
+********************************
+Special types of Containers
+********************************
+
+Init containers
+================================
+
+Init containers are exactly like regular containers, except:
+
+- Init containers always run to completion.
+- Each init container must complete successfully before the next one starts.
+
+If a Pod's init container fails, the kubelet repeatedly restarts that init container until it succeeds.
+
+**Use cases**
+
+- Wait for a Service to be created (e.g. a db, another microservice, etc)
+- Register this Pod with a remote server from the downward API
+- Wait for some time before starting the app container with a command like `for i in {1..100}; do sleep 1; if dig myservice; then exit 0; fi; done; exit 1`
+- Clone a Git repository into a Volume
+- Place values into a configuration file and run a template tool to dynamically generate a configuration file for the main app container. 
+
+Ephemeral containers (alpha)
+================================
+
+Ephemeral containers are a special type of container that runs temporarily in an existing Pod to accomplish user-initiated actions such as troubleshooting. Ephemeral containers are useful for interactive troubleshooting when `kubectl exec` is insufficient because a container has crashed or a container image doesn't include debugging utilities (e.g. distroless images).
+
+You use ephemeral containers to inspect services rather than to build applications.
+
