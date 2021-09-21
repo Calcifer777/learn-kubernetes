@@ -200,7 +200,7 @@ CoreDNS is configured via a `Corefile`, for example:
 The fully qualified domain name for a service is:
 `<service-name>.<namespace>.svc.cluster.local`
 
-Pods can have DNS records, but the fist component of the FQDN is just the internal IP of the Pod, with periods replaced by dashes.
+Pods can have DNS records, but the fist component of the FQDN is just the internal IP of the Pod, with periods replaced by dashes; that is `<pod-ip-with-dashes.default.pod>`
 
 ************************************
 Ingress
@@ -312,14 +312,20 @@ Get node IP, network interface name, MAC
   kubectl get nodes <nodename> -o jsonpath='{.status.addresses[?(@.type == "InternalIP")].address}'  # option 2
   # Get all interfaces with their IP addresses and filter by node IP
   ip addr | grep <node-ip> -B2
+  # Get MAC address of worker node
+  arp <node-name>
 
 
-Get MAC address of worker node 
+Get CNI configuration
 ================================================================
 
 .. code-block:: bash
-  
-  arp <node-name>
+  # CNI configuration details are provided to the kubelet as cli arguments. 
+  # If not present in the kubelet process, given by:
+  ps aux | grep kubelet | grep cni
+
+  # Get the default values from the help of the kubelet command
+  kubelet -i | grep cni
 
 
 Other
@@ -327,7 +333,7 @@ Other
 
 - Get IP address of node: `kubectl get nodes -o wide`
 - Get CNI of node: `ip a | grep -B2 <node-ip>`
-- Get mac-address of CNI of node: `ip a | grep -B2 <node-ip> | grep link/ether`
+- Get MAC-address of CNI of node: `ip a | grep -B2 <node-ip> | grep link/ether`
 - Get MAC address of worker node `arp <node-name>`
 - Get name of bridge interface created by Docker: `ip a | grep docker -A 1`
 - Show default IP route: `ip route`
