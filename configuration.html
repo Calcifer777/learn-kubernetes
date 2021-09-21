@@ -1,0 +1,397 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Configuration &mdash; Kubernetes Notes 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Logging and Monitoring" href="logging-and-monitoring.html" />
+    <link rel="prev" title="IAM" href="iam.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Kubernetes Notes
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cluster-setup.html">Cluster setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cluster-maintenance.html">Cluster Maintenance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">Networking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pods.html">Pods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workloads.html">Workloads</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scheduling.html">Scheduling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="services.html">Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="iam.html">IAM</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#configmaps">ConfigMaps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#imperative-commands">Imperative commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#secrets">Secrets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#types-of-secrets">Types of secrets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#requests-and-limits">Requests and Limits</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#units">Units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#remedies">Remedies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qos-classes">QoS classes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="logging-and-monitoring.html">Logging and Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="todos.html">TODO’s</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Kubernetes Notes</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Configuration</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/configuration.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="configuration">
+<h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="configmaps">
+<h2>ConfigMaps<a class="headerlink" href="#configmaps" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://kubernetes.io/docs/reference/kubernetes-api/config-and-storage-resources/config-map-v1/">ConfigMap Docs</a></p>
+<p>A <cite>ConfigMap</cite> is an API object used to store non-confidential data in key-value pairs.</p>
+<p>The data stored in a <cite>ConfigMap</cite> cannot exceed 1 MiB.</p>
+<p>There are four different ways that you can use a <cite>ConfigMap</cite> to configure a container inside a <cite>Pod</cite>:</p>
+<ul class="simple">
+<li><p>Inside a container command and args</p></li>
+<li><p>Environment variables for a container</p></li>
+<li><p>Add a file in read-only volume, for the application to read</p></li>
+<li><p>Write code to run inside the Pod that uses the Kubernetes API to read a <cite>ConfigMap</cite>: allows to access a <cite>ConfigMap</cite> in different namespaces, monitor <cite>ConfigMap</cite> changes</p></li>
+</ul>
+<p>When a <cite>ConfigMap</cite> currently consumed in a volume is updated, projected keys are eventually updated as well (1 minute by default).</p>
+<div class="section" id="imperative-commands">
+<h3>Imperative commands<a class="headerlink" href="#imperative-commands" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># From file</span>
+<span class="n">kubectl</span> <span class="n">create</span> <span class="n">configmap</span> <span class="n">my</span><span class="o">-</span><span class="n">cm</span><span class="o">-</span><span class="mi">1</span>  <span class="o">--</span><span class="n">from</span><span class="o">-</span><span class="n">file</span><span class="o">=./</span><span class="n">properties</span><span class="o">.</span><span class="n">cfg</span>
+<span class="c1"># From file with custom key</span>
+<span class="n">kubectl</span> <span class="n">create</span> <span class="n">configmap</span> <span class="n">my</span><span class="o">-</span><span class="n">cm</span><span class="o">-</span><span class="mi">2</span>  <span class="o">--</span><span class="n">from</span><span class="o">-</span><span class="n">file</span><span class="o">=</span><span class="n">custom</span><span class="o">-</span><span class="n">key</span><span class="o">=./</span><span class="n">properties</span><span class="o">.</span><span class="n">cfg</span>
+<span class="c1"># From env file</span>
+<span class="n">kubectl</span> <span class="n">create</span> <span class="n">configmap</span> <span class="n">my</span><span class="o">-</span><span class="n">cm</span><span class="o">-</span><span class="mi">3</span>  <span class="o">--</span><span class="n">from</span><span class="o">-</span><span class="n">env</span><span class="o">-</span><span class="n">file</span><span class="o">=./</span><span class="n">cm</span><span class="o">-</span><span class="n">env</span><span class="o">-</span><span class="n">file</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">my-config-map</span>
+<span class="nt">data</span><span class="p">:</span>
+  <span class="nt">key1</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">value1</span>  <span class="c1"># keys and values are in plain text</span>
+  <span class="nt">key2</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">value2</span>
+<span class="nt">binaryData</span><span class="p">:</span>       <span class="c1"># can co-exist with the data field</span>
+  <span class="nt">key1</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dmF1ZTEK</span>  <span class="c1"># keys and values are bas64 encoded</span>
+  <span class="nt">key2</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dmF1ZTIK</span>
+<span class="nt">immutable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="secrets">
+<h2>Secrets<a class="headerlink" href="#secrets" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://kubernetes.io/docs/concepts/configuration/secret/">Secrets Docs</a></p>
+<p>A Secret is an object that contains a small amount of sensitive data such as a password, a token, or a key.</p>
+<p>Secrets are, by default, stored unencrypted in the API server’s underlying data store (etcd). In order to safely use Secrets, take at least the following steps:</p>
+<ul class="simple">
+<li><p>Enable Encryption at Rest for Secrets.</p></li>
+<li><p>Enable or configure RBAC rules that restrict reading data in Secrets</p></li>
+</ul>
+<p>A Secret can be used with a Pod in three ways:</p>
+<ul class="simple">
+<li><p>As files in a volume mounted on one or more of its containers.</p></li>
+<li><p>As container environment variable.</p></li>
+<li><p>By the kubelet when pulling images for the Pod.</p></li>
+</ul>
+<p>When a secret currently consumed in a volume is updated, projected keys are eventually updated as well.</p>
+<div class="section" id="types-of-secrets">
+<h3>Types of secrets<a class="headerlink" href="#types-of-secrets" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 49%" />
+<col style="width: 51%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Type</p></th>
+<th class="head"><p>Usage</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Opaque</p></td>
+<td><p>arbitrary user-defined data</p></td>
+</tr>
+<tr class="row-odd"><td><p>kubernetes.io/service-account-token</p></td>
+<td><p>service account token</p></td>
+</tr>
+<tr class="row-even"><td><p>kubernetes.io/dockercfg</p></td>
+<td><p>serialized ~/.dockercfg file</p></td>
+</tr>
+<tr class="row-odd"><td><p>kubernetes.io/dockerconfigjson</p></td>
+<td><p>serialized ~/.docker/config.json file</p></td>
+</tr>
+<tr class="row-even"><td><p>kubernetes.io/basic-auth</p></td>
+<td><p>credentials for basic authentication</p></td>
+</tr>
+<tr class="row-odd"><td><p>kubernetes.io/ssh-auth</p></td>
+<td><p>credentials for SSH authentication</p></td>
+</tr>
+<tr class="row-even"><td><p>kubernetes.io/tls</p></td>
+<td><p>data for a TLS client or server</p></td>
+</tr>
+<tr class="row-odd"><td><p>bootstrap.kubernetes.io/token</p></td>
+<td><p>bootstrap token data</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id1">
+<h3>Example<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Secret</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">sample-secret</span>
+<span class="nt">stringData</span><span class="p">:</span>
+  <span class="nt">key</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">value</span>
+<span class="nt">data</span><span class="p">:</span>
+  <span class="nt">asdasd=</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">asglaf=</span>  <span class="c1"># base64 encoded</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="requests-and-limits">
+<h2>Requests and Limits<a class="headerlink" href="#requests-and-limits" title="Permalink to this headline">¶</a></h2>
+<p>When you specify the resource request for Containers in a Pod, the scheduler uses this information to decide which node to place the Pod on.</p>
+<p>When you specify a resource limit for a Container, the kubelet enforces those limits so that the running container is not allowed to use more of that resource than the limit you set.</p>
+<p>If a Container specifies its own memory/CPU limit, but does not specify a memory/CPU request, Kubernetes automatically assigns a memory/CPU request that matches the limit.</p>
+<div class="section" id="units">
+<h3>Units<a class="headerlink" href="#units" title="Permalink to this headline">¶</a></h3>
+<p>Memory is measured in: XX KiB, XX MiB</p>
+<p>CPU: 0.X -&gt; X00m (of a vCPU/core/hyperthread)</p>
+</div>
+<div class="section" id="remedies">
+<h3>Remedies<a class="headerlink" href="#remedies" title="Permalink to this headline">¶</a></h3>
+<p>If a Container exceeds its memory limit, it might be terminated. If it is restartable, the kubelet will restart it.</p>
+<p>If a Container exceeds its memory request, it is likely that its Pod will be evicted whenever the node runs out of memory.</p>
+<p>A Container might or might not be allowed to exceed its CPU limit for extended periods of time. However, it will not be killed for excessive CPU usage.</p>
+<p>CPU limits are enforced via Linux control groups.</p>
+</div>
+<div class="section" id="qos-classes">
+<h3>QoS classes<a class="headerlink" href="#qos-classes" title="Permalink to this headline">¶</a></h3>
+<p>When Kubernetes creates a <cite>Pod</cite> it assigns one of these QoS classes to the Pod:</p>
+<ul class="simple">
+<li><p>Guaranteed: for all containers in the <cite>Pod</cite>, both requests and limits are specified and set to the same value</p></li>
+<li><p>Burstable: at least one container in the <cite>Pod</cite> has memory or CPU request</p></li>
+<li><p>BestEffort: for all containers in the <cite>Pod</cite> neither requests or limits are specified</p></li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Pod</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">frontend</span>
+<span class="nt">spec</span><span class="p">:</span>
+  <span class="nt">containers</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="nt">resources</span><span class="p">:</span>
+      <span class="nt">requests</span><span class="p">:</span>
+        <span class="nt">memory</span><span class="p">:</span> <span class="s">&quot;64Mi&quot;</span>
+        <span class="nt">cpu</span><span class="p">:</span> <span class="s">&quot;250m&quot;</span>
+      <span class="nt">limits</span><span class="p">:</span>
+        <span class="nt">memory</span><span class="p">:</span> <span class="s">&quot;128Mi&quot;</span>
+        <span class="nt">cpu</span><span class="p">:</span> <span class="s">&quot;500m&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="logging-and-monitoring.html" class="btn btn-neutral float-right" title="Logging and Monitoring" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="iam.html" class="btn btn-neutral float-left" title="IAM" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Marco Filippone.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

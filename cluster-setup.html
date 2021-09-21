@@ -1,0 +1,354 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Cluster setup &mdash; Kubernetes Notes 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Cluster Maintenance" href="cluster-maintenance.html" />
+    <link rel="prev" title="Architecture" href="architecture.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Kubernetes Notes
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Cluster setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cluster-design">Cluster design</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#purpose">Purpose</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#education">Education</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#development-testing">Development &amp; Testing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#hosting-production-applications">Hosting production applications</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#architecture">Architecture</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#kubeadm-installation">Kubeadm Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cluster-maintenance.html">Cluster Maintenance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">Networking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pods.html">Pods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workloads.html">Workloads</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scheduling.html">Scheduling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="services.html">Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="iam.html">IAM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging-and-monitoring.html">Logging and Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="todos.html">TODO’s</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Kubernetes Notes</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Cluster setup</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/cluster-setup.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cluster-setup">
+<h1>Cluster setup<a class="headerlink" href="#cluster-setup" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="cluster-design">
+<h2>Cluster design<a class="headerlink" href="#cluster-design" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="purpose">
+<h3>Purpose<a class="headerlink" href="#purpose" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="education">
+<h4>Education<a class="headerlink" href="#education" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>Minikube</p></li>
+<li><p>Single node cluster with kubeadm/GCP/AWS</p></li>
+</ul>
+</div>
+<div class="section" id="development-testing">
+<h4>Development &amp; Testing<a class="headerlink" href="#development-testing" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>Multi-node cluster with a single master and multiple workers</p></li>
+<li><p>Setup using kubeadm tool or quick provision on GCP/AWS/AKS</p></li>
+</ul>
+</div>
+<div class="section" id="hosting-production-applications">
+<h4>Hosting production applications<a class="headerlink" href="#hosting-production-applications" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>HA multi node cluster</p></li>
+<li><p>Kubeadm / GKE / Kops (AWS) / AKS</p></li>
+</ul>
+<p><strong>Storage</strong></p>
+<ul class="simple">
+<li><p>High performance: SSD backed storage</p></li>
+<li><p>Multiple concurrent connections: network based storage</p></li>
+<li><p>Shared access across multiple Pods: Persistent shared volumes</p></li>
+<li><p>Label nodes with specific disk types</p></li>
+<li><p>Use node selectors to assign applications to nodes with specific disk types</p></li>
+</ul>
+<p><strong>Nodes</strong></p>
+<ul class="simple">
+<li><p>Virtual or physical machines</p></li>
+<li><p>Minimum of 4 node cluster</p></li>
+<li><p>Best practice is to not host workloads on master nodes</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="architecture">
+<h3>Architecture<a class="headerlink" href="#architecture" title="Permalink to this headline">¶</a></h3>
+<p><strong>K8s provider types</strong></p>
+<ul class="simple">
+<li><p>Turnkey solutions
+- Kops
+- Openshift
+- Cloud Foundry
+- VMware Cloud PKS
+- Vagrant</p></li>
+<li><p>Managed solutions
+- GKE
+- AKS
+- Openshift online
+- EKS</p></li>
+</ul>
+<p><strong>How control plane components work</strong></p>
+<ul class="simple">
+<li><p><cite>kube-apiserver</cite>
+- Run in an active-active mode, with a load balancer in front</p></li>
+<li><p><cite>kube-scheduler</cite>, <cite>kube-controller-manager</cite>
+- Run in an active-standby mode</p></li>
+<li><p>ETC
+- Can run in a staked (as part of the cluster) or external topology
+- In HA, only the leader processes write operations
+- Uses RAFT as leader election algorithm
+- To ensure HA, use an off number of master nodes (3 or 5)</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="kubeadm-installation">
+<h2>Kubeadm Installation<a class="headerlink" href="#kubeadm-installation" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">VERSION</span><span class="o">=</span><span class="m">1</span>.21.0-00
+
+<span class="c1"># KUBEADM</span>
+
+<span class="c1"># Update the package manager</span>
+sudo apt-get update
+sudo apt-get install -y apt-transport-https ca-certificates curl
+<span class="c1"># Download the Google Cloud public signing key</span>
+sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+<span class="c1"># Add the K9s repository</span>
+<span class="nb">echo</span> <span class="s2">&quot;deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main&quot;</span> <span class="p">|</span> sudo tee /etc/apt/sources.list.d/kubernetes.list
+<span class="c1"># Install kubeadm, kubelet, and kubectl</span>
+sudo apt-get update
+sudo apt-get install -y <span class="nv">kubeadm</span><span class="o">=</span><span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span> <span class="nv">kubelet</span><span class="o">=</span><span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span> <span class="nv">kubectl</span><span class="o">=</span><span class="si">${</span><span class="nv">VERSION</span><span class="si">}</span>
+<span class="c1"># Check versions</span>
+kubeadm version
+kubelet --version
+kubectl version
+
+
+<span class="c1"># MASTER NODE</span>
+<span class="nb">export</span> <span class="nv">ADVERTISE_ADDRESS</span><span class="o">=</span><span class="k">$(</span>ip addr <span class="p">|</span> grep eth0 <span class="p">|</span> grep inet <span class="p">|</span> sed <span class="s1">&#39;s/inet\s\([0-9\.]*\).*/\1/&#39;</span><span class="k">)</span>
+<span class="c1"># Install the cluster</span>
+kubeadm init <span class="se">\</span>
+  --apiserver-advertise-address<span class="o">=</span><span class="m">10</span>.31.173.12  <span class="se">\</span>
+  --apiserver-cert-extra-sans<span class="o">=</span>controlplane  <span class="se">\</span>
+  --pod-network-cidr<span class="o">=</span><span class="m">10</span>.244.0.0/16
+<span class="c1"># Create default kubeconfig</span>
+mkdir -p <span class="nv">$HOME</span>/.kube
+sudo cp -i /etc/kubernetes/admin.conf <span class="nv">$HOME</span>/.kube/config
+sudo chown <span class="k">$(</span>id -u<span class="k">)</span>:<span class="k">$(</span>id -g<span class="k">)</span> <span class="nv">$HOME</span>/.kube/config
+<span class="nb">export</span> <span class="nv">KUBECONFIG</span><span class="o">=</span>/etc/kubernetes/admin.conf
+<span class="c1"># Install network plugin (Flannel)</span>
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+<span class="c1"># Create join token</span>
+kubeadm token create --print-join-command
+
+
+<span class="c1"># WORKER NODES</span>
+<span class="c1"># print join-command from master node</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="cluster-maintenance.html" class="btn btn-neutral float-right" title="Cluster Maintenance" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="architecture.html" class="btn btn-neutral float-left" title="Architecture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Marco Filippone.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

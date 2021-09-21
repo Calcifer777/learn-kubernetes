@@ -1,0 +1,372 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Workloads &mdash; Kubernetes Notes 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Scheduling" href="scheduling.html" />
+    <link rel="prev" title="Pods" href="pods.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Kubernetes Notes
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cluster-setup.html">Cluster setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cluster-maintenance.html">Cluster Maintenance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">Networking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pods.html">Pods</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Workloads</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#replicasets">ReplicaSets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#deployment">Deployment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#deployment-strategies">Deployment Strategies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#horizontal-pod-autoscaling">Horizontal Pod Autoscaling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#editing-deployments">Editing Deployments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rollouts">Rollouts</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="scheduling.html">Scheduling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="services.html">Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="iam.html">IAM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging-and-monitoring.html">Logging and Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="todos.html">TODO’s</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Kubernetes Notes</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Workloads</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/workloads.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="workloads">
+<h1>Workloads<a class="headerlink" href="#workloads" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="replicasets">
+<h2>ReplicaSets<a class="headerlink" href="#replicasets" title="Permalink to this headline">¶</a></h2>
+<p>A <cite>ReplicaSet</cite> ensures that a specified number of pod replicas are running at any given time.</p>
+<p>It is a deprecated version of a <cite>Deployment</cite>; use Deployments instead of directly using ReplicaSets, unless you require custom update orchestration or don’t require updates at all.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">apps/v1</span>
+<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ReplicaSet</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">replicaset-example</span>
+<span class="nt">spec</span><span class="p">:</span>
+  <span class="nt">replicas</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+  <span class="nt">selector</span><span class="p">:</span>
+    <span class="nt">matchLabels</span><span class="p">:</span>
+      <span class="nt">app</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
+  <span class="nt">template</span><span class="p">:</span>
+    <span class="nt">metadata</span><span class="p">:</span>
+      <span class="nt">labels</span><span class="p">:</span>
+        <span class="nt">app</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
+    <span class="nt">spec</span><span class="p">:</span>
+      <span class="nt">containers</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
+        <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nginx:1.14</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="deployment">
+<h2>Deployment<a class="headerlink" href="#deployment" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="deployment-strategies">
+<h3>Deployment Strategies<a class="headerlink" href="#deployment-strategies" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><p>Recreate: terminate the old version and release the new one</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nn">...</span>
+<span class="nt">spec</span><span class="p">:</span>
+  <span class="nt">strategy</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Recreate</span>
+<span class="nn">...</span>
+</pre></div>
+</div>
+</li>
+<li><p>Ramped: release a new version on a rolling update fashion, one after the other</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nn">...</span>
+<span class="nt">spec</span><span class="p">:</span>
+  <span class="nt">strategy</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">RollingUpdate</span>
+    <span class="nt">rollingUpdate</span><span class="p">:</span>
+      <span class="nt">maxUnavailable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">&lt;max-unavail&gt;</span>  <span class="c1"># how many pods can be unavailable during the rolling update</span>
+      <span class="nt">maxSurge</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">&lt;max-surge&gt;</span>  <span class="c1"># how many pods we can add at a time</span>
+<span class="nn">...</span>
+</pre></div>
+</div>
+</li>
+<li><p>Blue/Green: the new application version  is deployed alongside the old version with exactly the same amount of instances. After testing that the new version meets all the requirements the traffic is switched from the old version to the new version at the load balancer level.</p>
+<ul class="simple">
+<li><p>How to: Create a new deployment targeting a different application version/tag, and with a different selector</p></li>
+<li><p>Pro’s</p>
+<ul>
+<li><p>instant rollout/rollback</p></li>
+<li><p>avoid versioning issue, change the entire cluster state in one go</p></li>
+</ul>
+</li>
+<li><p>Con’s</p>
+<ul>
+<li><p>requires double the resources</p></li>
+<li><p>proper test of the entire platform should be done before releasing to production</p></li>
+<li><p>handling stateful applications can be hard</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Canary: release a new version to a subset of users, then proceed to a full rollout</p>
+<ul class="simple">
+<li><p>How: create 2 deployments and split traffic at the load balancer level (HAProxy, Linkerd, etc.)</p></li>
+<li><p>Pro’s</p>
+<ul>
+<li><p>version released for a subset of users</p></li>
+<li><p>convenient for error rate and performance monitoring</p></li>
+<li><p>fast rollback</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>A/B testing: release a new version to a subset of users in a precise way (HTTP headers, cookie, weight, etc.). A/B testing is really a technique for making business decisions based on statistics but we will briefly describe the process. This doesn’t come out of the box with Kubernetes, it implies extra work to setup a more advanced infrastructure (Istio, Linkerd, Traefik, custom nginx/haproxy, etc).</p>
+<ul class="simple">
+<li><p>Pro</p>
+<ul>
+<li><p>requires intelligent load balancer</p></li>
+<li><p>several versions run in parallel</p></li>
+<li><p>full control over the traffic distribution</p></li>
+</ul>
+</li>
+<li><p>Cons</p>
+<ul>
+<li><p>hard to troubleshoot errors for a given session, distributed tracing becomes mandatory</p></li>
+<li><p>not straightforward, you need to setup additional tool</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="horizontal-pod-autoscaling">
+<h3>Horizontal Pod Autoscaling<a class="headerlink" href="#horizontal-pod-autoscaling" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="editing-deployments">
+<h3>Editing Deployments<a class="headerlink" href="#editing-deployments" title="Permalink to this headline">¶</a></h3>
+<p>When applying any changes to a <cite>Deployment</cite>, you can save the change in the annotations using the <cite>–record</cite> cli option.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>kubectl <span class="nb">set</span> image deployment/nginx-deploy <span class="nv">nginx</span><span class="o">=</span>nginx:1.17 --record
+kubectl scale deployment &lt;deployment-name&gt; --replicas<span class="o">=</span>&lt;number-of-replicas&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="rollouts">
+<h3>Rollouts<a class="headerlink" href="#rollouts" title="Permalink to this headline">¶</a></h3>
+<p>Rollouts commands are useful to get the state of a deployment:</p>
+<ul>
+<li><p><cite>kubectl rollout status &lt;deployment-name&gt;</cite></p></li>
+<li><p><cite>kubectl rollout history &lt;deployment-name&gt; [ –revision &lt;revision-history-index&gt; ]</cite></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">deployments</span> <span class="s2">&quot;nginx-deployment&quot;</span> <span class="n">revision</span> <span class="mi">2</span>
+<span class="n">Labels</span><span class="p">:</span>       <span class="n">app</span><span class="o">=</span><span class="n">nginx</span>
+        <span class="n">pod</span><span class="o">-</span><span class="n">template</span><span class="o">-</span><span class="nb">hash</span><span class="o">=</span><span class="mi">1159050644</span>
+<span class="n">Annotations</span><span class="p">:</span>  <span class="n">kubernetes</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">change</span><span class="o">-</span><span class="n">cause</span><span class="o">=</span><span class="n">kubectl</span> <span class="nb">set</span> <span class="n">image</span> <span class="n">deployment</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">apps</span><span class="o">/</span><span class="n">nginx</span><span class="o">-</span><span class="n">deployment</span> <span class="n">nginx</span><span class="o">=</span><span class="n">nginx</span><span class="p">:</span><span class="mf">1.16.1</span> <span class="o">--</span><span class="n">record</span><span class="o">=</span><span class="n">true</span>
+<span class="n">Containers</span><span class="p">:</span>
+ <span class="n">nginx</span><span class="p">:</span>
+  <span class="n">Image</span><span class="p">:</span>      <span class="n">nginx</span><span class="p">:</span><span class="mf">1.16.1</span>
+  <span class="n">Port</span><span class="p">:</span>       <span class="mi">80</span><span class="o">/</span><span class="n">TCP</span>
+   <span class="n">QoS</span> <span class="n">Tier</span><span class="p">:</span>
+      <span class="n">cpu</span><span class="p">:</span>      <span class="n">BestEffort</span>
+      <span class="n">memory</span><span class="p">:</span>   <span class="n">BestEffort</span>
+  <span class="n">Environment</span> <span class="n">Variables</span><span class="p">:</span>      <span class="o">&lt;</span><span class="n">none</span><span class="o">&gt;</span>
+<span class="n">No</span> <span class="n">volumes</span><span class="o">.</span>
+</pre></div>
+</div>
+</li>
+<li><p><cite>kubectl rollout undo &lt;deployment-name&gt; [ –to-revision &lt;revision-history-index&gt; ]</cite>: restore the deployment to the <cite>revision-history-index</cite> version</p></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="scheduling.html" class="btn btn-neutral float-right" title="Scheduling" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="pods.html" class="btn btn-neutral float-left" title="Pods" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Marco Filippone.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

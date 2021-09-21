@@ -1,0 +1,470 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Pods &mdash; Kubernetes Notes 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Workloads" href="workloads.html" />
+    <link rel="prev" title="Networking" href="networking.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Kubernetes Notes
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cluster-setup.html">Cluster setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cluster-maintenance.html">Cluster Maintenance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">Networking</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Pods</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pod-definition-details">Pod definition details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#entrypoint-vs-command">Entrypoint vs command</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#docker">Docker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Pods</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pod-lifecycle">Pod Lifecycle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pod-phases">Pod Phases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#container-states">Container states</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pod-status">Pod status</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#readiness-probes">Readiness Probes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#container-probes">Container Probes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#topology-spread-constraints">Topology spread constraints</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#spread-constraints-for-pods">Spread constraints for pods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cluster-level-default-constraints">Cluster-level default constraints</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pods-disruptions">Pods disruptions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pod-disruptions-budgets-pdb">Pod disruptions budgets (PDB)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#special-types-of-pods">Special types of Pods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#static-pods">Static Pods</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#special-types-of-containers">Special types of Containers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#init-containers">Init containers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ephemeral-containers-alpha">Ephemeral containers (alpha)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="workloads.html">Workloads</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scheduling.html">Scheduling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="services.html">Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="iam.html">IAM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging-and-monitoring.html">Logging and Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="todos.html">TODO’s</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Kubernetes Notes</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Pods</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/pods.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pods">
+<h1>Pods<a class="headerlink" href="#pods" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https://kubernetes.io/docs/concepts/workloads/pods/">Docs</a></p>
+<p>Pods are the smallest deployable units of computing that you can create and manage in Kubernetes.</p>
+<p>A Pod is a group of one or more containers, with shared storage and network resources, and a specification for how to run the containers. A Pod’s contents are always co-located and co-scheduled, and run in a shared context.</p>
+<p>Pods natively provide two kinds of shared resources for their constituent containers:
+- storage: a Pod can specify a set of shared storage volumes
+- networking: inside a Pod (and only then), the containers that belong to the Pod can communicate with one another using <cite>localhost</cite></p>
+<p>Any container in a Pod can enable <strong>privileged mode</strong>, using the privileged flag on the security context of the container spec. This is useful for containers that want to use operating system administrative capabilities such as manipulating the network stack or accessing hardware devices.</p>
+<div class="section" id="pod-definition-details">
+<h2>Pod definition details<a class="headerlink" href="#pod-definition-details" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="entrypoint-vs-command">
+<h3>Entrypoint vs command<a class="headerlink" href="#entrypoint-vs-command" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="docker">
+<h4>Docker<a class="headerlink" href="#docker" title="Permalink to this headline">¶</a></h4>
+<p>Both ENTRYPOINT and CMD give you a way to identify which executable should be run when a container is started from your image</p>
+<p><cite>entrypoint</cite> should be used in scenarios where you want the container to behave exclusively as if it were the executable it’s wrapping. That is, the entrypoint is the application the is executed at the container startup</p>
+<p><cite>cmd</cite> is used to sets the default parameters for the entrypoint. Some images have the default entrypoint set to the <cite>bash</cite> command, so you can executed any bash commands directly via <cite>cmd</cite>.</p>
+</div>
+<div class="section" id="id1">
+<h4>Pods<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 47%" />
+<col style="width: 24%" />
+<col style="width: 29%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>Description</p></td>
+<td><p>Docker field name</p></td>
+<td><p>Kubernetes field name</p></td>
+</tr>
+<tr class="row-even"><td><p>The command run by the container</p></td>
+<td><p>Entrypoint</p></td>
+<td><p>command</p></td>
+</tr>
+<tr class="row-odd"><td><p>The arguments passed to the command</p></td>
+<td><p>Cmd</p></td>
+<td><p>Args</p></td>
+</tr>
+</tbody>
+</table>
+<p>When you override the default Entrypoint and Cmd, these rules apply:</p>
+<ul class="simple">
+<li><p>If you do not supply <cite>command</cite> or <cite>args</cite> for a Container, the defaults defined in the Docker image are used.</p></li>
+<li><p>If you supply a <cite>command</cite> but no <cite>args</cite> for a Container, <strong>only the supplied command is used</strong>. The default EntryPoint and the default Cmd defined in the Docker image are ignored.</p></li>
+<li><p>If you supply only <cite>args</cite> for a Container, <strong>the default Entrypoint defined in the Docker image is run with the args that you supplied</strong>.</p></li>
+<li><p>If you supply a <cite>command</cite> and <cite>args</cite>, the default Entrypoint and the default Cmd defined in the Docker image are ignored. Your command is run with your args.</p></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="pod-lifecycle">
+<h2>Pod Lifecycle<a class="headerlink" href="#pod-lifecycle" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="pod-phases">
+<h3>Pod Phases<a class="headerlink" href="#pod-phases" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><cite>Pending</cite>: The Pod has been accepted by the Kubernetes cluster, but one or more of the containers has not been set up and made ready to run. This includes time a Pod spends waiting to be scheduled as well as the time spent downloading container images over the network.</p></li>
+<li><p><cite>Running</cite>: The Pod has been bound to a node, and all of the containers have been created. At least one container is still running, or is in the process of starting or restarting.</p></li>
+<li><p><cite>Succeeded</cite>: All containers in the Pod have terminated in success, and will not be restarted.</p></li>
+<li><p><cite>Failed</cite>: All containers in the Pod have terminated, and at least one container has terminated in failure.</p></li>
+<li><p><cite>Unknown</cite>: For some reason the state of the Pod could not be obtained. This phase typically occurs due to an error in communicating with the node where the Pod should be running.</p></li>
+<li><p><cite>Terminated</cite> (not a real Pod phase): When a Pod is being deleted, it is shown as Terminating by some kubectl commands</p></li>
+</ul>
+</div>
+<div class="section" id="container-states">
+<h3>Container states<a class="headerlink" href="#container-states" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><cite>Waiting</cite>: the container is still running the operations it requires in order to complete start up</p></li>
+<li><p><cite>Running</cite>: the container is executing without issues. If there was a <cite>postStart</cite> hook configured, it has already executed and finished.</p></li>
+<li><p><cite>Terminated</cite>: the container began execution and then either ran to completion or failed for some reason. If a container has a <cite>preStop</cite> hook configured, that runs before the container enters the Terminated state.</p></li>
+</ul>
+<p><strong>Container restart policy</strong></p>
+<ul class="simple">
+<li><p>Always</p></li>
+<li><p>OnFailure</p></li>
+<li><p>Never</p></li>
+</ul>
+</div>
+<div class="section" id="pod-status">
+<h3>Pod status<a class="headerlink" href="#pod-status" title="Permalink to this headline">¶</a></h3>
+<p>The <cite>PodStatus</cite>, which has an array of <cite>PodConditions</cite> through which the Pod has or has not passed:</p>
+<ul class="simple">
+<li><p><cite>PodScheduled</cite>: the Pod has been scheduled to a node.</p></li>
+<li><p><cite>ContainersReady</cite>: all containers in the Pod are ready.</p></li>
+<li><p><cite>Initialized</cite>: all init containers have started successfully.</p></li>
+<li><p><cite>Ready</cite>: the Pod is able to serve requests and should be added to the load balancing pools of all matching Services.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="readiness-probes">
+<h2>Readiness Probes<a class="headerlink" href="#readiness-probes" title="Permalink to this headline">¶</a></h2>
+<p>Your application can inject extra feedback or signals into PodStatus: Pod readiness. To use this, set readinessGates in the Pod’s spec to specify a list of additional conditions that the kubelet evaluates for Pod readiness.</p>
+<div class="section" id="container-probes">
+<h3>Container Probes<a class="headerlink" href="#container-probes" title="Permalink to this headline">¶</a></h3>
+<p>A probe is a diagnostic performed periodically by the kubelet on a container. To perform a diagnostic, the kubelet can invoke different actions:</p>
+<ul class="simple">
+<li><p><cite>ExecAction</cite> (performed with the help of the container runtime)</p></li>
+<li><p><cite>TCPSocketAction</cite> (checked directly by the kubelet)</p></li>
+<li><p><cite>HTTPGetAction</cite> (checked directly by the kubelet)</p></li>
+</ul>
+<p>The kubelet can optionally perform and react to three kinds of probes on running containers:</p>
+<ul class="simple">
+<li><p><cite>startupProbe</cite>: Indicates whether the application within the container is started. All other probes are disabled if a startup probe is provided, until it succeeds. If the startup probe fails, the kubelet kills the container, and the container is subjected to its restart policy. If a Container does not provide a startup probe, the default state is Success.</p></li>
+<li><p><cite>readinessProbe</cite>: Indicates whether the container is ready to respond to requests. If the readiness probe fails, the endpoints controller removes the Pod’s IP address from the endpoints of all Services that match the Pod. The default state of readiness before the initial delay is Failure. If a Container does not provide a readiness probe, the default state is Success.</p></li>
+<li><p><cite>livenessProbe</cite>: Indicates whether the container is running. If the liveness probe fails, the kubelet kills the container.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="topology-spread-constraints">
+<h2>Topology spread constraints<a class="headerlink" href="#topology-spread-constraints" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="spread-constraints-for-pods">
+<h3>Spread constraints for pods<a class="headerlink" href="#spread-constraints-for-pods" title="Permalink to this headline">¶</a></h3>
+<p>You can use topology spread constraints to control how Pods are spread across your cluster among failure-domains such as regions, zones, nodes, and other user-defined topology domains.</p>
+<p>Topology spread constraints rely on node labels to identify the topology domain(s) that each Node is in. For example, a Node might have labels: <cite>node=node1</cite>, <cite>zone=us-east-1a</cite>, <cite>region=us-east-1</cite></p>
+<p>You can define one or multiple <cite>topologySpreadConstraint</cite> to instruct the kube-scheduler how to place each incoming Pod in relation to the existing Pods across your cluster. The fields are:</p>
+<ul class="simple">
+<li><p><cite>labelSelector</cite> is used to find matching Pods. Pods that match this label selector are counted to determine the number of Pods in their corresponding topology domain</p></li>
+<li><p><cite>topologyKey</cite> is the key of node labels</p></li>
+<li><p><cite>maxSkew</cite>: the degree to which Pods may be unevenly distributed. It must be greater than zero. Its semantics differs according to the value of <cite>whenUnsatisfiable</cite></p></li>
+<li><p><cite>whenUnsatisfiable</cite>: indicates how to deal with a Pod if it doesn’t satisfy the spread constraint</p>
+<ul>
+<li><p><cite>DoNotSchedule</cite></p></li>
+<li><p><cite>ScheduleAnyway</cite>: schedules the pod prioritizing nodes that minimize the skew.</p></li>
+</ul>
+</li>
+</ul>
+<p>When a Pod defines more than one <cite>topologySpreadConstraint</cite>, those constraints are <cite>ANDed</cite>.</p>
+</div>
+<div class="section" id="cluster-level-default-constraints">
+<h3>Cluster-level default constraints<a class="headerlink" href="#cluster-level-default-constraints" title="Permalink to this headline">¶</a></h3>
+<p>It is possible to set default topology spread constraints for a cluster. Default topology spread constraints are applied to a Pod if, and only if:</p>
+<ul class="simple">
+<li><p>It doesn’t define any constraints in its .spec.topologySpreadConstraints.</p></li>
+<li><p>It belongs to a service, replication controller, replica set or stateful set.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="pods-disruptions">
+<h2>Pods disruptions<a class="headerlink" href="#pods-disruptions" title="Permalink to this headline">¶</a></h2>
+<p>How to deal with involuntary disruptions:</p>
+<ul class="simple">
+<li><p>Ensure your pod requests the resources it needs.</p></li>
+<li><p>Replicate your application if you need higher availability. (Learn about running replicated stateless and stateful applications.)</p></li>
+<li><p>For even higher availability when running replicated applications, spread applications across racks (using anti-affinity) or across zones (if using a multi-zone cluster.)</p></li>
+</ul>
+<div class="section" id="pod-disruptions-budgets-pdb">
+<h3>Pod disruptions budgets (PDB)<a class="headerlink" href="#pod-disruptions-budgets-pdb" title="Permalink to this headline">¶</a></h3>
+<p>A PDB limits the number of Pods of a replicated application that are down simultaneously from voluntary disruptions. PDBs cannot prevent involuntary disruptions from occurring, but they do count against the budget.</p>
+<p>Pods which are deleted or unavailable due to a rolling upgrade to an application do count against the disruption budget, but workload resources (such as Deployment and StatefulSet) are not limited by PDBs when doing rolling upgrades. Instead, the handling of failures during application updates is configured in the spec for the specific workload resource.</p>
+<div class="section" id="example">
+<h4>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Pod</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">pod-example</span>
+<span class="nt">spec</span><span class="p">:</span>
+  <span class="nt">containers</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ubuntu</span>
+    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ubuntu:trusty</span>
+    <span class="nt">command</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&quot;echo&quot;</span><span class="p p-Indicator">]</span>
+    <span class="nt">args</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&quot;Hello</span><span class="nv"> </span><span class="s">World&quot;</span><span class="p p-Indicator">]</span>
+  <span class="nt">initContainers</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">init-myservice</span>
+    <span class="nt">image</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">busybox:1.28</span>
+    <span class="nt">command</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&#39;sh&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;-c&#39;</span><span class="p p-Indicator">,</span> <span class="s">&quot;until</span><span class="nv"> </span><span class="s">nslookup</span><span class="nv"> </span><span class="s">myservice.$(cat</span><span class="nv"> </span><span class="s">/var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local;</span><span class="nv"> </span><span class="s">do</span><span class="nv"> </span><span class="s">echo</span><span class="nv"> </span><span class="s">waiting</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">myservice;</span><span class="nv"> </span><span class="s">sleep</span><span class="nv"> </span><span class="s">2;</span><span class="nv"> </span><span class="s">done&quot;</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="special-types-of-pods">
+<h2>Special types of Pods<a class="headerlink" href="#special-types-of-pods" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="static-pods">
+<h3>Static Pods<a class="headerlink" href="#static-pods" title="Permalink to this headline">¶</a></h3>
+<p>Static Pods are managed directly by the kubelet daemon on a specific node, without the API server observing them. Whereas most Pods are managed by the control plane (for example, a Deployment), for static Pods, the kubelet directly supervises each static Pod (and restarts it if it fails).</p>
+<p>Kubelet also tries to create a mirror pod on the kubernetes api server for each static pod so that the static pods are visible i.e., when you do kubectl get pod for example, the mirror object of static pod is also listed.</p>
+<p>The main use for static Pods is to run a self-hosted control plane: in other words, using the kubelet to supervise the individual control plane components. For example, when kubeadm is bringing up kubernetes control plane, it generates pod manifests for api-server and controller-manager in a directory which kubelet is monitoring. Then kubelet brings up these control plane components as static pods.</p>
+</div>
+</div>
+<div class="section" id="special-types-of-containers">
+<h2>Special types of Containers<a class="headerlink" href="#special-types-of-containers" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="init-containers">
+<h3>Init containers<a class="headerlink" href="#init-containers" title="Permalink to this headline">¶</a></h3>
+<p>Init containers are exactly like regular containers, except:</p>
+<ul class="simple">
+<li><p>Init containers always run to completion.</p></li>
+<li><p>Each init container must complete successfully before the next one starts.</p></li>
+</ul>
+<p>If a Pod’s init container fails, the kubelet repeatedly restarts that init container until it succeeds.</p>
+<p><strong>Use cases</strong></p>
+<ul class="simple">
+<li><p>Wait for a Service to be created (e.g. a db, another microservice, etc)</p></li>
+<li><p>Register this Pod with a remote server from the downward API</p></li>
+<li><p>Wait for some time before starting the app container with a command like <cite>for i in {1..100}; do sleep 1; if dig myservice; then exit 0; fi; done; exit 1</cite></p></li>
+<li><p>Clone a Git repository into a Volume</p></li>
+<li><p>Place values into a configuration file and run a template tool to dynamically generate a configuration file for the main app container.</p></li>
+</ul>
+</div>
+<div class="section" id="ephemeral-containers-alpha">
+<h3>Ephemeral containers (alpha)<a class="headerlink" href="#ephemeral-containers-alpha" title="Permalink to this headline">¶</a></h3>
+<p>Ephemeral containers are a special type of container that runs temporarily in an existing Pod to accomplish user-initiated actions such as troubleshooting. Ephemeral containers are useful for interactive troubleshooting when <cite>kubectl exec</cite> is insufficient because a container has crashed or a container image doesn’t include debugging utilities (e.g. distroless images).</p>
+<p>You use ephemeral containers to inspect services rather than to build applications.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="workloads.html" class="btn btn-neutral float-right" title="Workloads" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="networking.html" class="btn btn-neutral float-left" title="Networking" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Marco Filippone.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

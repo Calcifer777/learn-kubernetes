@@ -1,0 +1,429 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Cluster Maintenance &mdash; Kubernetes Notes 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Networking" href="networking.html" />
+    <link rel="prev" title="Cluster setup" href="cluster-setup.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Kubernetes Notes
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cluster-setup.html">Cluster setup</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Cluster Maintenance</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#useful-commands">Useful commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#draining-nodes">Draining nodes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cluster-update-process">Cluster update process</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#version-skew-constrains">Version skew constrains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cluster-update-strategies">Cluster update strategies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cluster-update-steps">Cluster update steps</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#master-node-s">Master Node(s)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#worker-nodes">Worker nodes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#etcd-backup-and-restore">ETCD backup and restore</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#backup">Backup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#restore">Restore</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#optional-stop-the-kube-aposerver">(OPTIONAL) Stop the kube aposerver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#restore-the-etcd-from-the-backup">Restore the ETCD from the backup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#update-etcd-manifest">Update ETCD manifest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#optional-restart-etcd-service">(OPTIONAL) Restart ETCD service</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="networking.html">Networking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pods.html">Pods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workloads.html">Workloads</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scheduling.html">Scheduling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="services.html">Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="iam.html">IAM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging-and-monitoring.html">Logging and Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="todos.html">TODO’s</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Kubernetes Notes</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Cluster Maintenance</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/cluster-maintenance.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cluster-maintenance">
+<h1>Cluster Maintenance<a class="headerlink" href="#cluster-maintenance" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="useful-commands">
+<h2>Useful commands<a class="headerlink" href="#useful-commands" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="draining-nodes">
+<h3>Draining nodes<a class="headerlink" href="#draining-nodes" title="Permalink to this headline">¶</a></h3>
+<p><cite>kubectl cordon node &lt;node-name&gt;</cite>: prevents k8s from scheduling pods on the target node</p>
+<p><cite>kubectl drain node &lt;node-name&gt; –ignore-daemonsets</cite>: <cite>cordon</cite> the target node and move all pods to other nodes</p>
+<p><cite>kubectl uncordon node &lt;node-name&gt;</cite>: allows pod scheduling on the target node</p>
+</div>
+</div>
+<div class="section" id="cluster-update-process">
+<h2>Cluster update process<a class="headerlink" href="#cluster-update-process" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="version-skew-constrains">
+<h3>Version skew constrains<a class="headerlink" href="#version-skew-constrains" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="https://v1-21.docs.kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/">Cluster Update process Docs</a></p>
+<p>Kubernetes versions are expressed as <cite>x.y.z</cite>, where <cite>x</cite> is the major version, <cite>y</cite> is
+the minor version, and <cite>z</cite> is the patch version, following Semantic Versioning
+terminology.</p>
+<p>Each Kubernetes version supports the previous 2 minor versions.</p>
+<p>At any stage:</p>
+<ul class="simple">
+<li><p>the <cite>kube-apiserver</cite> version is the reference version for the Kubernetes cluster</p></li>
+<li><p>the <cite>controller-manager</cite> and the <cite>kube-scheduler</cite> can be at most 1 minor version behind the <cite>kube-apiserver</cite></p></li>
+<li><p>the <cite>kubelet</cite> and the <cite>kube-proxy</cite> can be at most 2 minor versions behind the <cite>kube-apiserver</cite></p></li>
+<li><p><cite>kubectl</cite> can lag or lead at most 1 minor version with respect to the <cite>kube-apiserver</cite></p></li>
+</ul>
+<p>The recommended approach is to update 1 minor version at a time.</p>
+</div>
+<div class="section" id="cluster-update-strategies">
+<h3>Cluster update strategies<a class="headerlink" href="#cluster-update-strategies" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>All nodes at once</p></li>
+<li><p>(Manual) rolling update</p></li>
+<li><p>Rolling update with new nodes</p></li>
+</ul>
+</div>
+<div class="section" id="cluster-update-steps">
+<h3>Cluster update steps<a class="headerlink" href="#cluster-update-steps" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="master-node-s">
+<h4>Master Node(s)<a class="headerlink" href="#master-node-s" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Mark the node as unschedulable and drain it</span>
+<span class="l l-Scalar l-Scalar-Plain">kubectl cordon &lt;master-node-name&gt;</span>
+<span class="l l-Scalar l-Scalar-Plain">kubectl drain &lt;master-node-name&gt; --ignore-daemonsets</span>
+
+<span class="l l-Scalar l-Scalar-Plain">export KUBEADM_VERSION=1.20.0-00</span>
+<span class="l l-Scalar l-Scalar-Plain">export K8S_VERSION= $(echo $KUBEADM_VERSION | sed &#39;s/\([0-9\.]\)-\(.*\)/\1/&#39;)</span>  <span class="c1"># KUBEADM_VERSION without the &quot;-00&quot; suffix</span>
+
+<span class="c1"># Check which new K8s versions are available</span>
+<span class="l l-Scalar l-Scalar-Plain">kubeadm upgrade plan | grep -i &quot;latest stable version&quot;</span>
+
+<span class="l l-Scalar l-Scalar-Plain"># Update the packages</span><span class="p p-Indicator">:</span>
+<span class="l l-Scalar l-Scalar-Plain">apt-get update</span>
+
+<span class="c1"># Install the new `kubeadm` version</span>
+<span class="l l-Scalar l-Scalar-Plain">apt-get install -y --allow-change-held-packages kubeadm=&lt;version&gt;</span>
+
+<span class="c1"># Apply the `kubeadm` update, this will update all the control plane components</span>
+<span class="l l-Scalar l-Scalar-Plain">kubeadm update apply &lt;version&gt;</span>
+
+<span class="c1"># Install the new `kubectl` and `kube-proxy` executables</span>
+<span class="l l-Scalar l-Scalar-Plain">apt-get install -y --allow-change-held-packages kubelet=&lt;version&gt; kubectl=&lt;version&gt;</span>
+
+<span class="c1"># Restart the kubelet</span>
+<span class="l l-Scalar l-Scalar-Plain">sudo systemctl daemon-reload &amp;&amp; sudo systemctl restart kubelet</span>
+
+<span class="c1"># Uncordon the node</span>
+<span class="l l-Scalar l-Scalar-Plain">kubectl uncordon &lt;master-node-name&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="worker-nodes">
+<h4>Worker nodes<a class="headerlink" href="#worker-nodes" title="Permalink to this headline">¶</a></h4>
+<p>Similar to the master nodes, but the <cite>cordon</cite> and <cite>drain</cite> commands must be executed from the master node.</p>
+<p>From one of the master nodes</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">kubectl cordon &lt;worker-node-name&gt;</span>
+<span class="l l-Scalar l-Scalar-Plain">kubectl drain &lt;worker-node-name&gt;  --ignore-daemonsets --grace-period 1</span>
+</pre></div>
+</div>
+<p>From the worker node</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">export KUBEADM_VERSION=1.20.0-00</span>
+
+<span class="l l-Scalar l-Scalar-Plain">apt get update</span>
+
+<span class="l l-Scalar l-Scalar-Plain"># Upgrade kubeadm</span>
+<span class="l l-Scalar l-Scalar-Plain">apt-get install -y --allow-change-held-packages kubeadm=${KUBEADM_VERSION}</span>
+
+<span class="l l-Scalar l-Scalar-Plain"># Align node to the master version</span>
+<span class="l l-Scalar l-Scalar-Plain">kubeadm upgrade node</span>
+
+<span class="l l-Scalar l-Scalar-Plain"># Upgrade the kubelet and kubectl</span>
+<span class="l l-Scalar l-Scalar-Plain">apt-get install -y --allow-change-held-packages \</span>
+  <span class="l l-Scalar l-Scalar-Plain">kubelet=${KUBEADM_VERSION}  \</span>
+  <span class="l l-Scalar l-Scalar-Plain">kubectl=${KUBEADM_VERSION}</span>
+
+<span class="l l-Scalar l-Scalar-Plain"># Restart the kubelet</span>
+<span class="l l-Scalar l-Scalar-Plain">sudo systemctl daemon-reload</span>
+<span class="l l-Scalar l-Scalar-Plain">sudo systemctl restart kubelet</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="etcd-backup-and-restore">
+<h2>ETCD backup and restore<a class="headerlink" href="#etcd-backup-and-restore" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/#backing-up-an-etcd-cluster">Etcd backup and restore</a></p>
+<div class="section" id="backup">
+<h3>Backup<a class="headerlink" href="#backup" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="nb">export</span> <span class="nv">ETCDCTL_API</span><span class="o">=</span><span class="s2">&quot;3&quot;</span>
+<span class="nb">export</span> <span class="nv">ENDPOINT</span><span class="o">=</span>https://127.0.0.1:2379
+<span class="nb">export</span> <span class="nv">SNAPSHOT_FILE_PATH</span><span class="o">=</span>/opt/snapshot-pre-boot.db
+<span class="nb">export</span> <span class="nv">CA_CERT_FILE_PATH</span><span class="o">=</span>/etc/kubernetes/pki/etcd/ca.crt
+<span class="nb">export</span> <span class="nv">CERT_FILE_PATH</span><span class="o">=</span>/etc/kubernetes/pki/etcd/server.crt
+<span class="nb">export</span> <span class="nv">KEY_FILE_PATH</span><span class="o">=</span>/etc/kubernetes/pki/etcd/server.key
+
+<span class="c1"># Snapshot the ETCD database</span>
+etcdctl  <span class="se">\</span>
+  --endpoints<span class="o">=</span><span class="si">${</span><span class="nv">ENDPOINT</span><span class="si">}</span>  <span class="se">\</span>
+  --cacert<span class="o">=</span><span class="si">${</span><span class="nv">CA_CERT_FILE_PATH</span><span class="si">}</span>  <span class="se">\</span>
+  --cert<span class="o">=</span><span class="si">${</span><span class="nv">CERT_FILE_PATH</span><span class="si">}</span>  <span class="se">\</span>
+  --key<span class="o">=</span><span class="si">${</span><span class="nv">KEY_FILE_PATH</span><span class="si">}</span>  <span class="se">\</span>
+  snapshot save <span class="si">${</span><span class="nv">SNAPSHOT_FILE_PATH</span><span class="si">}</span>
+
+<span class="c1"># Verify snapshot, print its contents</span>
+etcdctl --write-out<span class="o">=</span>table snapshot status <span class="si">${</span><span class="nv">SNAPSHOT_FILE_PATH</span><span class="si">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="restore">
+<h3>Restore<a class="headerlink" href="#restore" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="optional-stop-the-kube-aposerver">
+<h4>(OPTIONAL) Stop the kube aposerver<a class="headerlink" href="#optional-stop-the-kube-aposerver" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>service kube-apiserver stop
+</pre></div>
+</div>
+</div>
+<div class="section" id="restore-the-etcd-from-the-backup">
+<h4>Restore the ETCD from the backup<a class="headerlink" href="#restore-the-etcd-from-the-backup" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>etcdctl snapshot restore &lt;snapshot-file-path&gt; <span class="se">\</span>
+  --data-dir<span class="o">=</span>&lt;etcd-backup-data-dir&gt; <span class="se">\ </span>           <span class="c1"># use this in the next step</span>
+  --endpoints<span class="o">=</span>https://127.0.0.1:2379 <span class="se">\</span>
+  --cacert<span class="o">=</span>/etc/etcd/ca.crt <span class="se">\</span>
+  --cert<span class="o">=</span>/etc/etcd/etcd-server.crt <span class="se">\</span>
+  --key<span class="o">=</span>/etc/etcd/etcd-server.key
+</pre></div>
+</div>
+</div>
+<div class="section" id="update-etcd-manifest">
+<h4>Update ETCD manifest<a class="headerlink" href="#update-etcd-manifest" title="Permalink to this headline">¶</a></h4>
+<p>Update the etcd static pod definition with the <cite>etcd-backup-data-dir</cite> for the
+corresponding <cite>volume</cite></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>...
+ volumes:
+ - hostPath:
+     path: &lt;etcd-backup-data-dir&gt;
+     type: DirectoryOrCreate
+   name: etcd-data
+</pre></div>
+</div>
+</div>
+<div class="section" id="optional-restart-etcd-service">
+<h4>(OPTIONAL) Restart ETCD service<a class="headerlink" href="#optional-restart-etcd-service" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>...
+<span class="c1"># Restart the daemon service</span>
+systemctl daemon-reload
+<span class="c1"># Restart the etcd service</span>
+service etcd restart
+<span class="c1"># Restart the kube-apiserver</span>
+service kube-apiserver start
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="networking.html" class="btn btn-neutral float-right" title="Networking" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="cluster-setup.html" class="btn btn-neutral float-left" title="Cluster setup" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Marco Filippone.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

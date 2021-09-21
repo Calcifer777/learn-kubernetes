@@ -1,0 +1,542 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Networking &mdash; Kubernetes Notes 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Pods" href="pods.html" />
+    <link rel="prev" title="Cluster Maintenance" href="cluster-maintenance.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Kubernetes Notes
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cluster-setup.html">Cluster setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cluster-maintenance.html">Cluster Maintenance</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Networking</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pre-requisites">Pre-requisites</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#switching-and-routing">Switching and Routing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dns">DNS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#network-namespaces">Network Namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#docker-networking">Docker networking</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cluster-networking-interface-cni">Cluster networking interface (CNI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cluster-networking">Cluster Networking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pod-networking">Pod networking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ip-address-management-ipam">IP Address Management (IPAM)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#service-networking">Service networking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dns-in-k8s">DNS in K8s</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ingress">Ingress</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#exercises">Exercises</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#create-and-pair-two-network-namespaces">Create and pair two network namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-a-network-bridge-that-connects-two-network-namespaces">Create a network bridge that connects two network namespaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#get-node-ip-network-interface-name-mac">Get node IP, network interface name, MAC</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#get-cni-configuration">Get CNI configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#other">Other</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pods.html">Pods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workloads.html">Workloads</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scheduling.html">Scheduling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="services.html">Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="iam.html">IAM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging-and-monitoring.html">Logging and Monitoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage.html">Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="todos.html">TODO’s</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Kubernetes Notes</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Networking</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/networking.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="networking">
+<h1>Networking<a class="headerlink" href="#networking" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="pre-requisites">
+<h2>Pre-requisites<a class="headerlink" href="#pre-requisites" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="switching-and-routing">
+<h3>Switching and Routing<a class="headerlink" href="#switching-and-routing" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Switch / Network Interface: allows 2 or more devices to communicate in a local network</p></li>
+<li><p>Router: connects two or more networks</p></li>
+</ul>
+<p>Useful commands:</p>
+<ul class="simple">
+<li><p><cite>ip link</cite>: list and modify interfaces on the host</p></li>
+<li><p><cite>ip addr</cite>: see the IP addresses assigned to those interfaces</p></li>
+<li><p><cite>ip addr add &lt;cidr-block&gt; dev &lt;dev(ice)-name&gt;</cite>: configure IP address routing via an interface. These settings do not survive a host restart; to persist these changes, modify the <cite>/etc/network/interfaces</cite> file</p></li>
+<li><p><cite>ip route</cite>: view the routing table (used for cross network communications)</p></li>
+<li><p><cite>ip route add &lt;cidr-block&gt; via &lt;gateway-ip-address&gt;</cite>: add an entry in the routing table. To connect to the internet, for any new IP, use <cite>ip route add default via &lt;gateway-ip-address&gt;</cite></p></li>
+<li><p><cite>cat /proc/sys/net/ipv4/ip_forward</cite>: check if ip-forwarding is enabled on the host. To make it permanent, modify the <cite>/etc/sysctl.conf</cite> file</p></li>
+</ul>
+</div>
+<div class="section" id="dns">
+<h3>DNS<a class="headerlink" href="#dns" title="Permalink to this headline">¶</a></h3>
+<p>To assign a name to an IP address, add an entry to <cite>/etc/hosts</cite>.</p>
+<p>To add a common DNS nameserver, add the entry <cite>nameserver &lt;ip-to-nameserver&gt;</cite> to the <cite>/etc/resolv.conf</cite> file.</p>
+<p>By default, rules on the <cite>hosts</cite> file have priority on those in the nameserver; this behavior can be changed by modifying the <cite>/etc/nsswitch.conf</cite> (<a class="reference external" href="https://man7.org/linux/man-pages/man5/nsswitch.conf.5.html">docs</a>)</p>
+<p>Entry types that can be found in the <cite>/etc/hosts</cite> file:
+- A record: maps a name to IPv4
+- AAAA record: maps a name to IPv6
+- CNAME record: aliases, i.e. maps a name to name
+- <cite>search &lt;alias&gt; &lt;hostname&gt;</cite>: configure an alias for a host
+- <cite>search &lt;domain&gt;</cite>: configures a domain name under which to search unresolved domains</p>
+<p>Useful commands:</p>
+<ul class="simple">
+<li><p><cite>nslookup</cite>: does not consider the local host file</p></li>
+<li><p><cite>dig</cite></p></li>
+</ul>
+</div>
+<div class="section" id="network-namespaces">
+<h3>Network Namespaces<a class="headerlink" href="#network-namespaces" title="Permalink to this headline">¶</a></h3>
+<p>ARP TABLE (Address Resolution Table) Resolves IP address to Mac Address’s.</p>
+<p><a class="reference external" href="https://man7.org/linux/man-pages/man4/veth.4.html">https://man7.org/linux/man-pages/man4/veth.4.html</a></p>
+<p>All modern operating systems come equipped with a firewall – a software application that regulates network traffic to a computer. Firewalls create a barrier between a trusted network (like an office network) and an untrusted one (like the internet). Firewalls work by defining rules that govern which traffic is allowed, and which is blocked. The utility firewall developed for Linux systems is iptables.</p>
+<p>To allow multiple netns to communicate between each other on a single host, we create a virtual switch (via Linux Bridge, Open vSwitch, etc).</p>
+</div>
+<div class="section" id="docker-networking">
+<h3>Docker networking<a class="headerlink" href="#docker-networking" title="Permalink to this headline">¶</a></h3>
+<p>Types of docker networking connectivity:</p>
+<ul class="simple">
+<li><p><cite>none</cite>: the container is not attached to the <cite>none</cite> network; it cannot reach the outside world, and cannot communicate to the other contaienrs</p></li>
+<li><p><cite>host</cite>: the container is attached to the host network - no <cite>netns</cite> is involved and there is no network separation between host and container</p></li>
+<li><p><cite>bridge</cite>: create an internal private network which the docker host and container attach to</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="cluster-networking-interface-cni">
+<h2>Cluster networking interface (CNI)<a class="headerlink" href="#cluster-networking-interface-cni" title="Permalink to this headline">¶</a></h2>
+<p>The CNI is a set of standards that define how programs should be developed to solve networking challenges in a container runtime environment.</p>
+<p>The programs that implement a CNI are called <em>(network) plugins</em> (NP).</p>
+<p>CNI defines a set of responsibilities for a Container Runtime and the NP:
+- Container Runtime (RKT, K8s)</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Create a netns</p></li>
+<li><p>Identify the network the container should attach to</p></li>
+<li><p>Invoke the NP when the container is added</p></li>
+<li><p>Invoke the NP when the container is deleted</p></li>
+<li><p>JSON format of the network configuration</p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><p>Plugin (bridge, weave, Flannel, Calico)
+- Support command line arguments (e.g. ADD, DEL, CHECK)
+- Support parameters (e.g. container id, netns)
+- Manage IP addresses assignment to PODs
+- Return results in a specific format</p></li>
+</ul>
+<p>Docker does not implement a CNI; Docker implements CNM (container network model). K8s implements networking by creating container in the <cite>none</cite> network and then invoking the CNI script to allow connectivity.</p>
+</div>
+<div class="section" id="cluster-networking">
+<h2>Cluster Networking<a class="headerlink" href="#cluster-networking" title="Permalink to this headline">¶</a></h2>
+<p>Port configuration:
+- Master:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Kubeapi: 6443</p></li>
+<li><p>Kubelet: 10250</p></li>
+<li><p>Kube-scheduler: 10251</p></li>
+<li><p>Kube-controller-manager: 10252</p></li>
+<li><p>ETCD: 2379 (controplane components), 2380 (p2p connectivity)</p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><p>Workers
+- Kubelet: 10250</p></li>
+</ul>
+</div>
+<div class="section" id="pod-networking">
+<h2>Pod networking<a class="headerlink" href="#pod-networking" title="Permalink to this headline">¶</a></h2>
+<p>K8s expects that each node has a networking solution that makes it so that:</p>
+<ul class="simple">
+<li><p>every Pod has an IP address</p></li>
+<li><p>every Pod can communicate with every other Pod in the same node</p></li>
+<li><p>every Pod can communicate with every other Pod in other nodes without a NAT</p></li>
+</ul>
+<p>The CNI plugin executes the necessary commands to ensure inter-pod communication in the cluster.</p>
+<p>The kubelet uses the CNI configuration passed as cli-argument o in the pod specification, at the entries:</p>
+<ul class="simple">
+<li><p><cite>network-plugin: cni</cite></p></li>
+<li><p><cite>cni-bin-dir</cite>: where all the CNI scripts are placed. Defaults to <cite>/opt/cni/bin/</cite></p></li>
+<li><p><cite>cni-conf-dir</cite>: where the CNI configuration is placed; points to one of the scripts in the bin directory. If multiple files are present, it chooses the first one in alphabetical order</p></li>
+</ul>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span>{
+  &quot;cniVersion&quot;: &quot;0.2.0&quot;,
+  &quot;name&quot;: &quot;my-net&quot;,
+  &quot;type&quot;: &quot;bridge&quot;,
+  &quot;bridge&quot;: &quot;cni0&quot;,
+  &quot;isGateway&quot;: true,
+  &quot;isMasq&quot;: true,
+  &quot;ipam&quot;: {   #
+    &quot;type&quot;: &quot;host-local&quot;,
+    &quot;subnet&quot;: &quot;10.22.0.0/16&quot;,  # range of IP addresses assigned to Pods
+    &quot;routes&quot;: [
+      &quot;dst&quot;: &quot;0.0.0.0/0&quot;
+    ]
+  }
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="ip-address-management-ipam">
+<h2>IP Address Management (IPAM)<a class="headerlink" href="#ip-address-management-ipam" title="Permalink to this headline">¶</a></h2>
+<p>IPAM comprehends
+- How the virtual bridge networks in the nodes are assigned an IP subnet
+- How the Pods are assigned an IP</p>
+<p>The CNI plugins manages IPAM tasks.</p>
+<p>CNI comes with 2 built in plugins to manage IPAM:
+- DHCP
+- Host-local</p>
+</div>
+<div class="section" id="service-networking">
+<h2>Service networking<a class="headerlink" href="#service-networking" title="Permalink to this headline">¶</a></h2>
+<p><cite>Kube-proxy</cite> is responsible for exposing the services IP to the Pods in the cluster and external clients.</p>
+<p>Services are cross-nodes K8s objects.</p>
+<p>When a service is created, <cite>kube-proxy</cite>:</p>
+<ul class="simple">
+<li><p>assigns an internal IP to that service. The IP is choosen randomly from a list of free IPs in a given range. The range is configured wia the <cite>service-cluster-ip-range</cite> cli argument; this range should not overlap with the one for IP assigned to the Pods (set in the <cite>kube-apiserver</cite>)</p></li>
+<li><p>adds forwarding rules in each Node that map the IP and port of the service to the IP and port of the Pod.</p></li>
+</ul>
+<p><cite>kube-proxy</cite> can enforce these forwarding rules via:</p>
+<ul class="simple">
+<li><p>iptables</p></li>
+<li><p>userspace</p></li>
+<li><p>ipvs</p></li>
+</ul>
+</div>
+<div class="section" id="dns-in-k8s">
+<h2>DNS in K8s<a class="headerlink" href="#dns-in-k8s" title="Permalink to this headline">¶</a></h2>
+<p>The default DNS server in K8s is CoreDNS. It is deployed as a <cite>deployment</cite> with replicas for redundancy.</p>
+<p>CoreDNS is configured via a <cite>Corefile</cite>, for example:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span>{
+  errors
+  health
+  kubernetes cluster.local in addr.arpa ip6.arpa {
+    pods insecure
+    upstreams
+    fallthrough in-addr.arpa ip6.arpa
+  }
+  prometheus :9153
+  proxy . /etc/resolv.conf
+  cache 30
+  reload
+}
+</pre></div>
+</div>
+<p>The fully qualified domain name for a service is:
+<cite>&lt;service-name&gt;.&lt;namespace&gt;.svc.cluster.local</cite></p>
+<p>Pods can have DNS records, but the fist component of the FQDN is just the internal IP of the Pod, with periods replaced by dashes; that is <cite>&lt;pod-ip-with-dashes.default.pod&gt;</cite></p>
+</div>
+<div class="section" id="ingress">
+<h2>Ingress<a class="headerlink" href="#ingress" title="Permalink to this headline">¶</a></h2>
+<p>An ingress-controller is a reverse proxy that is exposed to external clients and routes the requests based on domain name, path, and protocol.</p>
+<p>An ingress rules defines the routing behavior that is enforced by the ingress controller.</p>
+<p>An ingress controller is composed by:
+- a <cite>deployment</cite> of the reverse proxy
+- a <cite>configmap</cite> to pass configuration settings to the reverse proxy
+- a <cite>service</cite> exposing the deployment
+- a service account, role, and role bindings to allow the ingress controller to monitor the cluster and align its configuration to the configured ingress rules</p>
+<p>Requests not matching any of the ingress rules configured for the controller are routed towards a service named <cite>default-http-backend</cite>.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">networking.k8s.io/v1</span>
+<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Ingress</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">my-ingress</span>
+  <span class="nt">annotations</span><span class="p">:</span>
+    <span class="nt">nginx.ingress.kubernetes.io/rewrite-target</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/</span>  <span class="c1"># this redirects requests destined to /path-1 to the root path</span>
+    <span class="nt">nginx.ingress.kubernetes.io/ssl-redirect</span><span class="p">:</span> <span class="s">&quot;false&quot;</span>
+<span class="nt">spec</span><span class="p">:</span>
+  <span class="nt">rules</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="nt">host</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">this.is.my.domain.com</span>
+    <span class="nt">http</span><span class="p">:</span>
+      <span class="nt">paths</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="nt">path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/path-1</span>
+        <span class="nt">pathType</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Prefix</span>
+        <span class="nt">backend</span><span class="p">:</span>
+          <span class="nt">service</span><span class="p">:</span>
+            <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">service-1</span>
+            <span class="nt">port</span><span class="p">:</span>
+              <span class="nt">number</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">80</span>
+  <span class="p p-Indicator">-</span> <span class="nt">host</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">this.is.my.domain.com</span>
+    <span class="l l-Scalar l-Scalar-Plain">...</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="exercises">
+<h2>Exercises<a class="headerlink" href="#exercises" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="create-and-pair-two-network-namespaces">
+<h3>Create and pair two network namespaces<a class="headerlink" href="#create-and-pair-two-network-namespaces" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ip netns add red
+ip netns add blue
+ip netns <span class="nb">exec</span> red ip link
+ip netns <span class="nb">exec</span> blue ip link
+ip link add veth-red <span class="nb">type</span> veth peer name veth-blue
+ip link <span class="nb">set</span> veth-red netns red
+ip link <span class="nb">set</span> veth-blue netns blue
+ip -n red addr add <span class="m">192</span>.168.15.1/24 dev veth-red
+ip -n blue addr add <span class="m">192</span>.168.15.2/24 dev veth-blue
+ip -n red link <span class="nb">set</span> veth-red up
+ip -n blue link <span class="nb">set</span> veth-blue up
+<span class="c1"># Test that it is reachable from ns and from host</span>
+<span class="c1"># sudo ip netns exec blue ping 192.168.15.1</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-a-network-bridge-that-connects-two-network-namespaces">
+<h3>Create a network bridge that connects two network namespaces<a class="headerlink" href="#create-a-network-bridge-that-connects-two-network-namespaces" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create ns:</span>
+ip netns add red
+ip netns add blue
+<span class="c1"># Create interface bridge:</span>
+ip link add v-net-0 <span class="nb">type</span> bridge
+<span class="c1"># Change bridge status:</span>
+ip link <span class="nb">set</span> dev v-net-0 up
+<span class="c1"># Create vritual cables:</span>
+ip link add veth-red <span class="nb">type</span> veth peer name veth-red-br
+ip link add veth-blue <span class="nb">type</span> veth peer name veth-blue-br
+<span class="c1"># Join peer with ns:</span>
+ip link <span class="nb">set</span> veth-red netns red
+ip link <span class="nb">set</span> veth-blue netns blue
+ip link <span class="nb">set</span> veth-red-br master v-net-0
+ip link <span class="nb">set</span> veth-blue-br master v-net-0
+<span class="c1"># Add IP addresses to ns:</span>
+ip -n red addr add <span class="m">192</span>.168.15.1/24 dev veth-red
+ip -n blue addr add <span class="m">192</span>.168.15.2/24 dev veth-blue
+<span class="c1"># Bring up ns interfaces:</span>
+ip -n red link <span class="nb">set</span> veth-red up
+ip -n blue link <span class="nb">set</span> veth-blue up
+<span class="c1"># Add IP address to host:</span>
+ip addr add <span class="m">192</span>.168.15.5/24 dev v-net-0
+<span class="c1"># Bring up all interfaces on host:</span>
+ip link <span class="nb">set</span> dev veth-red-br up
+ip link <span class="nb">set</span> dev veth-blue-br up
+<span class="c1"># Test that it is reachable from ns and from host</span>
+<span class="c1"># sudo ip netns exec blue ping 192.168.15.1</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-node-ip-network-interface-name-mac">
+<h3>Get node IP, network interface name, MAC<a class="headerlink" href="#get-node-ip-network-interface-name-mac" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get node IP</span>
+kubectl get nodes &lt;nodename&gt; -o wide  <span class="c1"># option 1</span>
+kubectl get nodes &lt;nodename&gt; -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.status.addresses[?(@.type == &quot;InternalIP&quot;)].address}&#39;</span>  <span class="c1"># option 2</span>
+<span class="c1"># Get all interfaces with their IP addresses and filter by node IP</span>
+ip addr <span class="p">|</span> grep &lt;node-ip&gt; -B2
+<span class="c1"># Get MAC address of worker node</span>
+arp &lt;node-name&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-cni-configuration">
+<h3>Get CNI configuration<a class="headerlink" href="#get-cni-configuration" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="other">
+<h3>Other<a class="headerlink" href="#other" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Get IP address of node: <cite>kubectl get nodes -o wide</cite></p></li>
+<li><p>Get CNI of node: <cite>ip a | grep -B2 &lt;node-ip&gt;</cite></p></li>
+<li><p>Get MAC-address of CNI of node: <cite>ip a | grep -B2 &lt;node-ip&gt; | grep link/ether</cite></p></li>
+<li><p>Get MAC address of worker node <cite>arp &lt;node-name&gt;</cite></p></li>
+<li><p>Get name of bridge interface created by Docker: <cite>ip a | grep docker -A 1</cite></p></li>
+<li><p>Show default IP route: <cite>ip route</cite></p></li>
+<li><p>identify the network plugin configured for Kubernetes: <cite>ps aux | grep kubelet | grep network-plugin</cite></p></li>
+<li><p>Identify the CNI plugin used by K8s: <cite>cd etc/cni/net.d/</cite></p></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="pods.html" class="btn btn-neutral float-right" title="Pods" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="cluster-maintenance.html" class="btn btn-neutral float-left" title="Cluster Maintenance" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Marco Filippone.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
