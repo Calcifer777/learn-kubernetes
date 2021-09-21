@@ -2,10 +2,11 @@
 Configuration
 #################
 
+*******************************
 ConfigMaps
-*****************
+*******************************
 
-`Docs <https://kubernetes.io/docs/reference/kubernetes-api/config-and-storage-resources/config-map-v1/>`_
+`ConfigMap Docs <https://kubernetes.io/docs/reference/kubernetes-api/config-and-storage-resources/config-map-v1/>`_
 
 A `ConfigMap` is an API object used to store non-confidential data in key-value pairs.
 
@@ -20,8 +21,8 @@ There are four different ways that you can use a `ConfigMap` to configure a cont
 
 When a `ConfigMap` currently consumed in a volume is updated, projected keys are eventually updated as well (1 minute by default).
 
-Useful commands
-=================
+Imperative commands
+===============================
 
 .. code-block::
 
@@ -33,7 +34,7 @@ Useful commands
   kubectl create configmap my-cm-3  --from-env-file=./cm-env-file
 
 Example
-=================
+===============================
 
 .. code-block:: yaml
 
@@ -49,10 +50,12 @@ Example
     key2: dmF1ZTIK
   immutable: true
 
-Secrets
-*****************
 
-`Docs <https://kubernetes.io/docs/concepts/configuration/secret/>`_
+*******************************
+Secrets
+*******************************
+
+`Secrets Docs <https://kubernetes.io/docs/concepts/configuration/secret/>`_
 
 A Secret is an object that contains a small amount of sensitive data such as a password, a token, or a key.
 
@@ -69,8 +72,8 @@ A Secret can be used with a Pod in three ways:
 
 When a secret currently consumed in a volume is updated, projected keys are eventually updated as well.
 
-Types of Secret
-=================
+Types of secrets
+===============================
 
 +-------------------------------------+---------------------------------------+
 | Type                                | Usage                                 |
@@ -93,8 +96,7 @@ Types of Secret
 +-------------------------------------+---------------------------------------+
 
 Example
-=================
-
+===============================
 
 .. code-block:: yaml
 
@@ -107,8 +109,10 @@ Example
   data:
     asdasd=: asglaf=  # base64 encoded
 
+
+*******************************
 Requests and Limits
-***********************
+*******************************
 
 When you specify the resource request for Containers in a Pod, the scheduler uses this information to decide which node to place the Pod on. 
 
@@ -117,14 +121,14 @@ When you specify a resource limit for a Container, the kubelet enforces those li
 If a Container specifies its own memory/CPU limit, but does not specify a memory/CPU request, Kubernetes automatically assigns a memory/CPU request that matches the limit.
 
 Units
-==============
+===============================
 
 Memory is measured in: XX KiB, XX MiB
 
 CPU: 0.X -> X00m (of a vCPU/core/hyperthread)
 
 Remedies
-==============
+===============================
 
 If a Container exceeds its memory limit, it might be terminated. If it is restartable, the kubelet will restart it.
 
@@ -135,7 +139,7 @@ A Container might or might not be allowed to exceed its CPU limit for extended p
 CPU limits are enforced via Linux control groups.
 
 QoS classes
-=============
+===============================
 
 When Kubernetes creates a `Pod` it assigns one of these QoS classes to the Pod:
 
@@ -158,3 +162,5 @@ When Kubernetes creates a `Pod` it assigns one of these QoS classes to the Pod:
         limits:
           memory: "128Mi"
           cpu: "500m"
+
+

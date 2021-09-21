@@ -54,36 +54,6 @@ The credential file must be passed as an argument to the `kube-apiserver`, or as
 
 Then, for each user, create the necessary roles and role-bindings.
 
-.. code-block:: yaml
-
-  kind: Role
-  apiVersion: rbac.authorization.k8s.io/v1
-  metadata:
-    namespace: default
-    name: pod-reader
-  rules:
-  - apiGroups: [""]                               # "" indicates the core API group
-    resources: ["pods"]
-    verbs: ["get", "watch", "list"]
-
-  ---
-
-  # This role binding allows "jane" to read pods in the "default" namespace.
-  kind: RoleBinding
-  apiVersion: rbac.authorization.k8s.io/v1
-  metadata:
-    name: read-pods
-    namespace: default
-  subjects:
-  - kind: User
-    name: user1                                   # Name is case sensitive
-    apiGroup: rbac.authorization.k8s.io
-  roleRef:
-    kind: Role #this must be Role or ClusterRole
-    name: pod-reader                              # must match the name of the Role to which to bind
-    apiGroup: rbac.authorization.k8s.io
-
-
 Static token file
 ==============================
 
@@ -119,59 +89,76 @@ Components that use a certificate:
   - kube-api server (when communicating with the etcd, or the kubelet)
   - kubelet client
 
-Generating clusters certificates:
-
-- Create the ca certificate:
-
-  .. code-block:: bash
-
-    open genrsa -out ca.key 2048  # generate the key
-    openssl req -new -key ca.key -subj "/CN=KUBERNETES-CA" -out ca.csr                    # generate the certificate sign request
-    openssl x509 -req -in ca.csr -signkey ca.key -out ca.crt                              # sign the certificate
-
-- Create the client certificate (example for the admin user):
-
-  .. code-block:: bash
-
-    open genrsa -out admin.key 2048                                                       # generate the key
-    openssl req -new -key admin.key -subj "/CN=kube-admin/O=system:masters" -out ca.csr   # generate the certificate sign request
-    openssl x509 -req -in admin.csr -signkey -CA ca.crt -CAkey ca.key -out admin.crt      # sign the certificate with the ca certificate
 
 
-View certificate details
+******************************
+RBAC
+******************************
+
+Roles
 ==============================
 
-- WIP
 
-https://kubernetes.io/docs/reference/access-authn-authz/authorization/#determine-the-request-verb
+.. code-block:: yaml
 
-***********************************
-Adding new users to the cluster
-***********************************
+  kind: Role
+  apiVersion: rbac.authorization.k8s.io/v1
+  metadata:
+    namespace: default
+    name: pod-reader
+  rules:
+  - apiGroups: [""]                               # "" indicates the core API group
+    resources: ["pods"]
+    verbs: ["get", "watch", "list"]
 
-The controller-manager is responsible for monitoring csr's approving and signing
+  ---
 
-- openssl genrsa -out user-name.key 2048
-- openssl req -new -key user-name.key -subj "/CN=user-name" -out user-name.csr
-- Create a CSR K9s object
+  # This role binding allows "jane" to read pods in the "default" namespace.
+  kind: RoleBinding
+  apiVersion: rbac.authorization.k8s.io/v1
+  metadata:
+    name: read-pods
+    namespace: default
+  subjects:
+  - kind: User
+    name: user1                                   # Name is case sensitive
+    apiGroup: rbac.authorization.k8s.io
+  roleRef:
+    kind: Role                                    # This must be Role or ClusterRole
+    name: pod-reader                              # must match the name of the Role to which to bind
+    apiGroup: rbac.authorization.k8s.io
 
-  .. code-block:: yaml
 
-    apiVersion: certificates.k8s.io/v1beta1
-    kind: CertificateSigningRequest
-    metadata:
-      name: user-name
-    spec:
-      signerName: kubernetes.ui/kube-apiserver-client
-      groups:
-        - system:authenticated
-      usages:
-        - client auth
-    requests:
-      here goes the content of user-name.crs base64 encoded. make it go in one line or use the |
+Resources
+------------------------------
 
-- kubectl certificate [approve|deny] user-name
-- kubectl get csr -o jsonpath '{.status.certificate}' | base64 -d
+`Requests Verbs Docs <https://kubernetes.io/docs/reference/access-authn-authz/authorization/#determine-the-request-verb>`_
+
+Service Accounts
+==============================
+
+.. code-block:: bash
+
+  kubectl create sa <service-account-name>
+
+
+Or:
+
+.. code-block:: yaml
+
+  apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: <service-account-name>
+  secrets:
+  - name: <service-account-name>-token-f9gcv
+
+
+Resources
+------------------------------
+
+https://mjarosie.github.io/dev/2021/09/15/iam-roles-for-kubernetes-service-accounts-deep-dive.html
+
 
 ******************************
 Kube-config
@@ -181,11 +168,6 @@ A `~/.kube/config` file defines:
 - a set of clusters
 - a set of users
 - a set of contexts; a context defines which user to use for logging in to a cluster
-
-kubectl config view
-
-
-kubectl config view --kubeconfig path-to-config-file
 
 .. code-block:: yaml
 
@@ -232,8 +214,8 @@ Network policies are implemented by the network plugin. To use network policies,
   spec:
     podSelector:
       matchLabels:
-        role: db   # which Pods the NetworkPolicy applies
-    policyTypes:   # which type of effects the NetworkPolicy will have
+        role: db                  # which Pods the NetworkPolicy applies
+    policyTypes:                  # which type of effects the NetworkPolicy will have
     - Ingress
     - Egress
     ingress:
@@ -258,21 +240,84 @@ Network policies are implemented by the network plugin. To use network policies,
         port: 5978
 
 
-******************************
-Resources
-******************************
-
-https://mjarosie.github.io/dev/2021/09/15/iam-roles-for-kubernetes-service-accounts-deep-dive.html
 
 ******************************
 Exercises
 ******************************
 
+Inspect a certificate
+======================================
+
+.. code-block:: bash
+
+  openssl x509 -in <file-path.crt> -text -noout
+
+
+Generate the certificates for the cluster
+===========================================
+
+.. code-block:: bash
+
+  # Create the ca certificate
+  open genrsa -out ca.key 2048  # generate the key
+  openssl req -new -key ca.key -subj "/CN=KUBERNETES-CA" -out ca.csr                    # generate the certificate sign request
+  openssl x509 -req -in ca.csr -signkey ca.key -out ca.crt                              # sign the certificate
+
+  # Create the client certificate (example for the admin user):
+
+  open genrsa -out admin.key 2048                                                       # generate the key
+  openssl req -new -key admin.key -subj "/CN=kube-admin/O=system:masters" -out ca.csr   # generate the certificate sign request
+  openssl x509 -req -in admin.csr -signkey -CA ca.crt -CAkey ca.key -out admin.crt      # sign the certificate with the ca certificate
+
+
 Create a new user, approve CSR
 ======================================
 
+Create an user private key and csr
+--------------------------------------
+
+.. code-block:: bash
+
+   openssl genrsa -out user-name.key 2048
+   openssl req -new -key user-name.key -subj "/CN=user-name" -out user-name.csr
+
+Create a csr K8s object
+--------------------------------------
+
+Print the base64 encoded CSR in one line
+
+.. code-block:: bash
+
+  cat user-name.csr | base64 | tr -d '\n'
+
+
+.. code-block:: yaml
+
+  apiVersion: certificates.k8s.io/v1beta1
+  kind: CertificateSigningRequest
+  metadata:
+    name: user-name
+  spec:
+    signerName: kubernetes.ui/kube-apiserver-client
+    groups:
+      - system:authenticated
+    usages:
+      - client auth
+  requests: <paste-base64-encoded-csr-content>
+
+
+.. code-block:: bash
+
+  kubectl certificate approve|deny user-name
+
+
 Inspect the kubeconfig file
 ======================================
+
+.. code-block:: bash
+
+  kubectl config view --kubeconfig <path-to-config-file>
+
 
 Use images from private registry
 ======================================
@@ -285,12 +330,12 @@ Create a secret with the credentials to the private repository
     --docker-username=user  \
     --docker-password=password  \
     --docker-email=email  \
-    [--docker-server=string]
+    --docker-server=string
 
 
 Edit the corresponding entry in the `Pod` definition
 
-.. code-block:: bash
+.. code-block:: yaml
 
   ...
   spec:
@@ -299,12 +344,13 @@ Edit the corresponding entry in the `Pod` definition
     containers:
     - ...
 
+
 Set containers security context properties
 ===============================================
 
 You can set the security context at the Pod level or at the container level. Specifications at the container level overwrite those at the `Pod` level.
 
-.. code-block:: bash
+.. code-block:: yaml
 
   ...
   securityContext:
@@ -318,9 +364,8 @@ You can set the security context at the Pod level or at the container level. Spe
             - SYS_TIME
 
 
-******************************
 Useful commands
-******************************
+=======================
 
 
 .. code-block:: bash
